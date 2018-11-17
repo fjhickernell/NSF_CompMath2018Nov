@@ -1,4 +1,4 @@
-%Fred's NSF Grant Dec 2017
+%Fred's NSF Grant Dec 2018
 \documentclass[11pt]{NSFamsart}
 \usepackage{latexsym,amsfonts,amsmath,epsfig,multirow}
 \usepackage{stackrel,tabularx,mathtools,enumitem,xspace}
@@ -256,6 +256,22 @@ Practitioners also want the algorithm to require no more than the problem specif
 error criterion.   Adaptive algorithms fill this need by determining when to stop the computation 
 based on data-driven error bounds, $\herr_n(f)$, where $f$ is the input function and $n$ is the 
 number of nodes (points where $f$ is evaluated).
+
+\newpage
+\clearpage
+%\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\bibliographystyle{spbasic}
+
+
+{\renewcommand\addcontentsline[3]{} 
+\renewcommand{\refname}{{\Large\textbf{References Cited}}}                   %%
+\renewcommand{\bibliofont}{\normalsize}
+
+\bibliography{FJH23,FJHown23}}
+\end{document}
+
 
 Common adaptive algorithms employ \emph{heuristic} error bounds, that sometimes fail, and fail for 
 unknown reasons. Traditional error 
@@ -1457,5 +1473,5 @@ inference.
 \renewcommand{\refname}{{\Large\textbf{References Cited}}}                   %%
 \renewcommand{\bibliofont}{\normalsize}
 
-\bibliography{FJH23,FJHown23,GregPapers}}
+\bibliography{FJH23,FJHown23}}
 \end{document}
