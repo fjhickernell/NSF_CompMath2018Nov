@@ -1,0 +1,222 @@
+%&LaTeX
+%Fred Hickernell's CV 
+\documentclass[11 pt]{NSFamsart} 
+\usepackage{amsmath,amssymb,longtable,ifthen,hyperref,xspace}
+\usepackage[dvipsnames]{xcolor}
+
+\setlength{\textwidth}{6.5in}
+\voffset -0.5in 
+\setlength{\textheight}{9in}
+\setlength{\oddsidemargin}{0in}
+\setlength{\evensidemargin}{0in}
+%\textheight 9in
+
+\newcommand\myshade{85}
+\colorlet{mylinkcolor}{violet}
+\colorlet{mycitecolor}{Aquamarine}
+%\colorlet{mycitecolor}{OliveGreen}
+\colorlet{myurlcolor}{YellowOrange}
+
+\hypersetup{
+	linkcolor  = mylinkcolor!\myshade!black,
+	citecolor  = mycitecolor!\myshade!black,
+	urlcolor   = myurlcolor!\myshade!black,
+	colorlinks = true,
+}
+
+
+\def\reals{{\mathbb{R}}}
+\newcommand{\Matlab}{{\sc Matlab}\xspace}
+\providecommand{\HickernellFJ}{Hickernell\xspace}
+
+\thispagestyle{plain}
+\pagestyle{plain}
+
+\begin{document}
+
+\centerline{\Large \bf Frederick John Hickernell}
+
+\medskip
+
+\noindent
+\begin{tabular}{lllll}
+	\multicolumn{5}{l}{{\large\textbf{Professional Preparation}}} \\
+	\textbf{Institution} & \textbf{Location} & \textbf{Major} & \textbf{Degree} & \textbf{Year} \\
+	Pomona College & Claremont, CA & mathematics \& physics & BA & 1977 \\
+	Massachusetts Institute  & Cambridge, MA &  mathematics  &  PhD &1981 \\
+	\hspace{3cm} of Technology
+\end{tabular}
+
+\bigskip
+
+\noindent
+\begin{tabular}{lp{13.5cm}}
+	\multicolumn{2}{l}{{\large\textbf{Appointments}}} \\
+	2018--present & Vice Provost for Research, Illinois Institute of Technology \\
+2017--2018 & Director, Center for Interdisciplinary Scientific Computation, Illinois Institute of 
+Technology \\ 
+2005--present & Professor, Illinois Institute of Technology \\ 
+2005--2017 & Chair of Applied Mathematics, Illinois Institute of Technology \\ 
+1995--2005  &  Associate Professor \& Professor of Mathematics, Hong Kong Baptist
+University\\ 
+1989--2002 & Head of Mathematics, Hong Kong Baptist College/University \\ 
+1985--1995 &  Lecturer \& Senior Lecturer of Mathematics, Hong Kong Baptist College \\
+1981--1985 & Assistant Professor, University of Southern California
+\end{tabular}
+
+\bigskip
+
+\noindent {\large \textbf{Products}} (for citation counts see 
+\href{http://scholar.google.com/citations?user=dJbMJG8AAAAJ}{\nolinkurl{scholar.google.com}} 
+(Fred J. Hickernell))
+
+\centerline{\textbf{Five Products Closely Related to the Proposal}}
+\begin{enumerate} \renewcommand{\labelenumi}{[\arabic{enumi}]}
+
+\item
+S.-C.~T. Choi, Y.~Ding, F.~J. \HickernellFJ, L.~Jiang, {\relax Ll}.~A.
+{Jim\'enez Rugama}, D.~Li, J.~Rathinavel, X.~Tong, K.~Zhang, Y.~Zhang, and
+X.~Zhou, \emph{{GAIL}: {G}uaranteed {A}utomatic {I}ntegration {L}ibrary
+	(versions 1.0--2.2)}, MATLAB software, \href{http://gailgithub.github.io/GAIL_Dev/} 
+	{\nolinkurl{gailgithub.github.io/GAIL_Dev/}}, {2013--2017}.
+
+\item S.-C.~T. Choi, Y.~Ding, F.~J. \HickernellFJ, and X.~Tong, \emph{Local adaption
+	for approximation and minimization of univariate functions}, J. Complexity
+\textbf{40} (2017), 17--33, {DOI} \\10.1016/j.jco.2016.11.005.
+
+\item N.~Clancy, Y.~Ding, C.~Hamilton, F.~J. Hickernell, and Y.~Zhang, \emph{The cost
+  of deterministic, adaptive, automatic algorithms: Cones, not balls}, J.
+  Complexity \textbf{30} (2014), 21--45, {DOI} 10.1016/j.jco.2013.09.002.
+
+%\item G.~E. Fasshauer, F.~J. Hickernell, and H.~Wo\'{z}niakowski, \emph{Average case
+%  approximation: Convergence and tractability of {G}aussian kernels}, {M}onte
+%  {C}arlo and Quasi-{M}onte {C}arlo Methods 2010 (L.~Plaskota and
+%  H.~Wo\'{z}niakowski, eds.), Springer-Verlag, Berlin, 2012, pp.~329--344.
+
+ 
+\item F.~J. \HickernellFJ, L.~Jiang, Y.~Liu, and A.~B. Owen, \emph{Guaranteed conservative fixed width confidence intervals via {M}onte {C}arlo sampling}, {M}onte {C}arlo and Quasi-{M}onte {C}arlo Methods 2012 (J.~Dick, F.~Y. Kuo,
+G.~W. Peters, and I.~H. Sloan, eds.), Springer-Verlag, Berlin, 2014, pp.~105--128,
+ {DOI} 10.1007/978-3-642-41095-6.
+
+\item
+F.~J. \HickernellFJ, {\relax Ll}.~A. {Jim\'enez Rugama}, and D.~Li,
+\emph{Adaptive quasi-{M}onte {C}arlo methods for cubature}, Contemporary
+Computational Mathematics --- a celebration of the 80th birthday of {I}an
+{S}loan (J.~Dick, F.~Y. Kuo, and H.~Wo\'zniakowski, eds.), Springer-Verlag,
+2018, pp.~597--619, {DOI} 10.1007/978-3-319-72456-0.
+
+
+  
+  
+
+\end{enumerate}
+
+\bigskip
+
+\centerline{\textbf{Five Other Significant Products}}
+
+\begin{enumerate} \renewcommand{\labelenumi}{[\arabic{enumi}]}
+\setcounter{enumi}{5}
+%\item G.~E. Fasshauer, F.~J. Hickernell, and H.~Wo\'{z}niakowski, \emph{On dimension-independent rates of convergence for function approximation with {G}aussian kernels}, SIAM J. Numer.\ Anal. \textbf{50} (2012), 247--271, {DOI} 10.1137/10080138X.
+
+\item G.~E. Fasshauer, F.~J. Hickernell, and H.~Wo\'{z}niakowski, \emph{On   
+dimension-independent rates of convergence for function approximation with {G}aussian kernels}, 
+SIAM J. Numer.\ Anal. \textbf{50} (2012), 247--271, {DOI} 10.1137/10080138X.
+
+\item F.~J. Hickernell, \emph{A generalized discrepancy and quadrature error bound},
+  Math.\ Comp. \textbf{67} (1998), 299--322, {DOI}
+  10.1090/S0025-5718-98-00894-1.
+  
+%\item
+%F.~J. \HickernellFJ, H.~S. Hong, P.~L'{\'E}cuyer, and C.~Lemieux,
+%  \emph{Extensible lattice sequences for quasi-{M}onte {C}arlo quadrature},
+%  SIAM J. Sci.\ Comput. \textbf{22} (2000), 1117--1138, {DOI}
+%  10.1137/S1064827599356638, {\em MR} 2001h:65032, {\em ZM} 974.65004.
+
+\item F.~J. \HickernellFJ, \emph{The trio identity for quasi-{M}onte {C}arlo error
+	analysis}, {M}onte {C}arlo and Quasi-{M}onte {C}arlo Methods: {MCQMC},
+{S}tanford, USA, {A}ugust 2016 (P.~Glynn and A.~Owen, eds.), Springer
+Proceedings in Mathematics and Statistics, Springer-Verlag, Berlin, 2018, pp.\ 3--27, 
+{DOI} 10.1007/978-3-319-91436-7.
+  
+%\item \label{TOMACS} H.~S. Hong and F.~J. Hickernell, \emph{Algorithm 823: Implementing 
+%scrambled digital nets}, ACM Trans.\ Math.\ Software \textbf{29} (2003), 95--109, {DOI} 
+%10.1145/779359.779360.
+
+\item F.~J. Hickernell and M.~Q. Liu, \emph{Uniform designs limit aliasing}, Biometrika \textbf{89} 
+(2002), 893--904, {DOI} 10.1093/biomet/89.4.893.
+
+\item B.~Niu, F.~J. Hickernell, T.~M\"uller-Gronbach, and K.~Ritter,
+\emph{Deterministic multi-level algorithms for infinite-dimensional
+	integration on {$\mathbb{R}^{\mathbb{N}}$}}, J. Complexity \textbf{27}
+(2011), 331--351, {DOI} 10.1016/j.jco.2010.08.001.
+
+\end{enumerate}
+
+\medskip
+
+\noindent {\large \textbf{Synergistic Activities}}
+
+\begin{enumerate} \renewcommand{\labelenumi}{[\arabic{enumi}]}
+	   
+		\item My research has involved dozens of high school, BSc, MS, MPhil and PhD students as 
+		well as post-doctoral scholars.  My mentoring has included summer research experiences for 
+		students funded by NSF as well as other funding sources.  Not only have 
+		students gained experience in discovery of new mathematics, they have been required to 
+		organize and communicate their discoveries in research group meetings, conference 
+		presentations, and publications.  Students and post-docs that I have mentored have gone on to 
+		further study, academic positions, and various positions in commerce industry.
+		
+		For over twelve years I was department chair at Illinois Tech before stepping down in 
+		2017.  During that time I hired and encouraged eight new tenure track assistant professors: 
+		three were women, six earned tenure and promotion to associate professor, and six 
+		successfully 
+		competed for external funding.  Two of the women hires, who have received tenure and been 
+		promoted to associate professor and have received external funding, were in statistics, an area 
+		where our department previously lacked strength.   
+		
+		In May, 2017, I was appointed director of a 
+		newly 
+		created Center for Interdisciplinary Scientific 
+		Computation (CISC), and charged with raising the profile of our scientific computation research 
+		and 
+		education at Illinois Tech. CISC is connecting faculty from science, engineering, business, and 
+		human sciences. 	In October 2018, I was appointed Vice Provost of Research for the university, and I passed the directorship of CISC to a new female faculty.
+
+	    \item Associate Editor, {\em International Journal of Numerical Analysis and Modeling} 
+	    (2003--2018), {\em Journal of Complexity} (1999--present), {\em Journal of Mathematical 
+	    Research with Applications} (2010--present),
+		{\em Mathematics of Computation}, 2008--2017, {\em SIAM Journal on Numerical Analysis}, 
+		2005--2018.
+		
+%		\item Sixteen invited conference talks since 2004
+	
+		\item Organizer, Program Committee Member, and/or Steering Committee Member for a number of international conferences, including the {\em Third through \href{http://mcqmc2018.inria.fr}{Eleventh
+		International Conferences on Monte Carlo and
+		Quasi-Monte Carlo Methods in Scientific Computing}}, biennially 1998--present.  Program 
+		Leader for the Statistical and Applied Mathematical Sciences Institute (SAMSI) 
+	2017--18 
+	\href{https://www.samsi.info/programs-and-activities/year-long-research-programs/2017-18-program-quasi-monte-carlo-high-dimensional-sampling-methods-applied-mathematics-qmc/
+		}{\emph{Program on Quasi-Monte Carlo and High-Dimensional Sampling Methods for Applied 
+		Mathematics (QMC)}}.
+
+		
+		
+		\item Worked with developers to promote the inclusion of software for generating low 
+		discrepancy sequences in the \Matlab Statistics Toolbox, since R2008a, and in routine 
+		G05YNF of the NAG library, since 2009.
+		
+			    \item Fellow of the Institute of Mathematical Statistics (elected 2007).  Recipient of the 
+			    2016 
+		Joseph F. Traub Prize for Achievement in Information-Based 
+		Complexity.
+		
+		
+
+		
+
+\end{enumerate}
+
+
+\end{document}
+
