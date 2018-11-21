@@ -1,6 +1,6 @@
 %Fred's NSF Grant Dec 2018
 \documentclass[11pt]{NSFamsart}
-\usepackage{latexsym,amsfonts,amsmath,epsfig,multirow}
+\usepackage{latexsym,amsfonts,amsmath,epsfig,extdash,multirow}
 \usepackage{stackrel,tabularx,mathtools,enumitem,xspace}
 \usepackage[dvipsnames]{xcolor}
 \usepackage[numbers]{natbib}
@@ -38,10 +38,10 @@
 \newcommand{\IIDMC}{\hyperlink{IIDMClink}{IID MC}\xspace}
 \newcommand{\SAMSIQMC}{\hyperlink{SAMSIlink}{SAMSI-QMC}\xspace}
 
-\setlength{\textwidth}{6.5in}
+\setlength{\textwidth}{6.4in}
 \setlength{\oddsidemargin}{0in}
 \setlength{\evensidemargin}{0in}
-\textheight9in
+\textheight8.9in
 %\textheight9.1in
 
 
@@ -62,9 +62,12 @@
 \DeclareMathOperator{\CV}{CV}
 \DeclareMathOperator{\size}{wd}
 \DeclareMathOperator{\GP}{\mathcal{G} \! \mathcal{P}}
+\DeclareMathOperator{\erf}{erf}
+
 
 \newcommand{\reals}{{\mathbb{R}}}
 \newcommand{\naturals}{{\mathbb{N}}}
+\newcommand{\natzero}{{\mathbb{N}_0}}
 \newcommand{\integers}{{\mathbb{Z}}}
 \def\expect{{\mathbb{E}}}
 \def\il{\left<}
@@ -106,6 +109,8 @@
 \newcommand{\mPhi}{\mathsf{\Phi}}
 \newcommand{\mPsi}{\mathsf{\Psi}}
 \newcommand{\mLambda}{\mathsf{\Lambda}}
+\newcommand{\cube}{[0,1]^d}
+\newcommand{\design}{\{\bx_i\}_{i=1}^n}
 
 \DeclareMathOperator{\err}{err}
 \DeclareMathOperator{\oerr}{\overline{\err}}
@@ -113,8 +118,14 @@
 \DeclareMathOperator{\Ans}{Ans}
 
 \DeclareMathOperator{\Var}{Var}
-\DeclareMathOperator{\INT}{INT}
+\DeclareMathOperator{\SOL}{SOL}
 \DeclareMathOperator{\APP}{APP}
+\DeclareMathOperator{\ALG}{ALG}
+\DeclareMathOperator{\OPER}{OPER}
+
+
+
+\DeclareMathOperator{\INT}{INT}
 \DeclareMathOperator{\OPT}{MIN}
 
 \newcommand{\bone}{\boldsymbol{1}}
@@ -248,7 +259,113 @@
 Integration and function approximation are the nuts and bolts when 
 solving practical problems in a variety of areas, including financial risk management \cite{Gla03}, 
 statistical physics~\cite{LanBin14}, 
-Bayesian inference~\cite{GelEtal13}, and uncertainty quantification~\cite{ForEtal09, Smi14a}.  
+Bayesian inference~\cite{GelEtal13}, and uncertainty quantification~\cite{ForEtal09, Smi14a}.  As computational mathematicians, we should aim to provide algorithms that meet the needs of practitioners.  They want algorithms that 
+\begin{enumerate}[leftmargin = 15ex]
+\renewcommand{\labelenumi}{\textbf{Goal \arabic{enumi}.}}
+    \item \label{GoalOne} Expend the  
+computational effort required to meet their error criterion, but do not expend much more effort;
+\item Require minimal a priori knowledge about the input function;
+
+\item Are computationally efficient; and
+
+\item Are readily available and easy to use.
+\end{enumerate}
+We propose to construct algorithms that meet those goals.
+
+\subsubsection*{Problems to be Solved} The mathematical problems that we wish to solve take the form 
+\begin{subequations} \label{problem}
+\begin{align}
+    \calf & = \text{a Banach space of inputs}, \qquad 
+    \calg = \text{a Banach space of outputs} \\
+    \SOL : \calf  \to \calg & = \text{ a linear solution operator} \\
+    \nonumber
+    & \qquad \text{e.g., integration }\SOL(f) := \int_{\cube} f(\bx) \, \dif \bx \\
+    \nonumber
+    & \qquad \text{or function approximation } \SOL(f) = f.
+\end{align}
+\end{subequations}
+There exist approximate solutions requiring $n$ function values at well-chosen node sets, $\design$, which take the form
+\begin{equation}
+    \APP: \calf \times \naturals_0 \to \calg = \text{fixed sample size approximation}, \quad \APP(f,n) = \sum_{i=1}^n f(\bx_i) g_i.
+\end{equation}
+For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gaussian quadrature rules.  For function approximation, the $g_i$ are called cardinal functions. Since our solution operator is linear, it is natural to consider approximations that are also linear.  We define $\APP(f,0) = 0$.
+
+To meet Goal \ref{GoalOne} we need to bound the error of our approximations.  Error bounds often take the form of 
+\begin{subequations} \label{errorBd}
+\begin{gather} 
+    \norm[\calg]{\SOL(f) - \APP(f,n)} \le \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \, \norm[\calf]{f}, \qquad \forall f\in \calf, \ n \in \natzero, \\
+    \intertext{where the norm of a linear operator $\OPER : \calf \to \calg$ is defined as}
+    \norm[\calf \to \calg]{\OPER(\cdot)} : = \sup_{f \in \calf, \ f \ne 0} \frac{ \norm[\calg]{\OPER(f)}}{\norm[\calf]{f}}.
+\end{gather}
+\end{subequations}
+Here, $\norm[\calf]{\cdot}$ is a (semi-)norm.  E.g., for the composite trapezoidal rule one may choose $\norm[\calf]{f}$ to be the total variation of $f'$, in which case $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} = 1/[8 (n-1)^2]$ \cite[Sect.\ 7.2, (7.15)]{BraPet11a}.  Even if the norm of the error operator has an explicit expression or upper bound, $\norm[\calf]{f}$ is typically unknown a priori.  Therefore, error bound \eqref{errorBd} is insufficient to satisfy Goal \ref{GoalOne}. 
+
+\subsubsection*{Adaptive Algorithms} Goal \ref{GoalOne} requires an algorithm of the form
+\begin{subequations} \label{AlgErr}
+\begin{gather}
+    \ALG(f,\varepsilon) : \calf \times (0,\infty) \to \calg = \text{fixed tolerance algorithm},
+    \intertext{which satisfies}
+    \norm[\calg]{\SOL(f) - \ALG(f,\varepsilon)} \le \varepsilon \quad \text{(with high probability)} \qquad \forall f\in \calc, \ \varepsilon >0,
+\end{gather}
+\end{subequations}
+where $\calc$ is a well-chosen subset of $\calf$ for which $\ALG$ can be proven to succeed.  This means that the user need only specify the error tolerance, $\varepsilon$, and is freed from having to choose the appropriate $n$.  The computational cost is determined by the accuracy requirement.  If the algorithm is random, we are willing to accept that it satisfies the error tolerance with high probability rather than all the time.  
+
+Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary $n$.  As candidates for $n$ increase, $\ALG$ must rely on the definition of $\calc$ plus the function values sampled to obtain $\APP(f,n)$ to reliably bound the error $\norm[\calg]{\SOL(f) - \APP(f,n)}$ and determine whether $n$ is large enough.
+
+While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required construct a stopping criterion needed to obtain the algorithm satisfying \eqref{AlgErr} has been neglected.  For simpler problems, such as evaluating elementary and even special functions,
+\begin{equation} \label{functionValues}
+    \sin, \cos, \exp, \log, \erf, \text{ the (inverse) Gaussian CDF, Bessel functions, etc.}
+\end{equation}
+we already have trustworthy algorithms.
+For these problems, $\calf$ and $\calg$ are subsets of real numbers, and we understand well the potential pitfalls of representing these numbers in finite precision.
+
+However, for integration and function approximation, the inputs are functions, for which we only have partial information---function values at a finite number of points.  Therefore, satisfying Goal \ref{GoalOne} is more difficult for these problems than it is for problems of the form \eqref{functionValues}.  
+
+\subsubsection*{Existing Adaptive Algorithms Typically Employ Heuristic Stopping Criteria}
+The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, and optimization routines found in general purpose software.  For example, MATLAB default integration routine, 
+\texttt{integral} \cite{MAT9.3}, is based on \cite{Sha08a}, and estimates the error based on the difference between two different quadratures that use the same nodes. Over 30 years ago, James 
+Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws in this and nearly all adaptive quadratures:
+\begin{quote}
+	While prepared to take the risk of being misled by chance alignment of zeros in the integrand 
+	function, or by narrow peaks which are ``missed,'' the user may wish to be reassured that for 
+	``reasonable'' integrand functions which do not have these characteristics all will be well. It is the 
+	purpose of the rest of this section to demonstrate by example that he cannot be reassured on this 
+	point. In fact the routine is likely to be unreliable in a significant proportion of the problems it faces 
+	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set 
+	of apparently reasonable problems this will happen.
+\end{quote}
+
+\begin{figure}[h]
+	\begin{tabular}{>{\centering}m{0.31\textwidth}@{\quad}>{\centering}m{0.31\textwidth}@{\quad}>{\centering}m{0.3\textwidth}}
+		\includegraphics[width=0.3\textwidth]{ProgramsImages/SpikyFoolIntegralcolor.eps} &
+		\includegraphics[width=0.3\textwidth]{ProgramsImages/FlukyFoolIntegralcolor.eps} 
+		\tabularnewline
+		(a) $\err_{100}(f) = 1 $ &
+		(b) $\err_{100}(f) =  1.4\text{E}{-4}$ &
+		(c) $\err_{150}(f) =  2.8\text{E}{-5}$
+		\end{tabular}
+	\caption{Integrands for which $\herr_n(f) = 0$ but 
+	$\err_n(f) \ne 0$. \label{quadfailfig}}
+\end{figure}
+
+
+
+
+======================
+
+======================
+
+
+
+
+The desire for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, and optimization routines found in general purpose software.  
+
+
+It is impossible to expect fixed tolerance algorithm to be successful for all $f \in \calf$ unless As will be explained later
+
+
+
+
 Practitioners 
 want to expend the  
 computational effort required to meet their error criterion, but not much more. 
@@ -257,20 +374,6 @@ error criterion.   Adaptive algorithms fill this need by determining when to sto
 based on data-driven error bounds, $\herr_n(f)$, where $f$ is the input function and $n$ is the 
 number of nodes (points where $f$ is evaluated).
 
-\newpage
-\clearpage
-%\pagenumbering{arabic}
-\setcounter{page}{1}
-
-\bibliographystyle{spbasic}
-
-
-{\renewcommand\addcontentsline[3]{} 
-\renewcommand{\refname}{{\Large\textbf{References Cited}}}                   %%
-\renewcommand{\bibliofont}{\normalsize}
-
-\bibliography{FJH23,FJHown23}}
-\end{document}
 
 
 Common adaptive algorithms employ \emph{heuristic} error bounds, that sometimes fail, and fail for 
@@ -1466,7 +1569,7 @@ inference.
 %\pagenumbering{arabic}
 \setcounter{page}{1}
 
-\bibliographystyle{spbasic}
+\bibliographystyle{spbasic.bst}
 
 
 {\renewcommand\addcontentsline[3]{} 
