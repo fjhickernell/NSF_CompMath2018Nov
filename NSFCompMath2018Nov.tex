@@ -257,27 +257,31 @@
 \vspace{-6ex}
 
 \section{Scientific Context, Key Ideas,  and Timeliness of the Proposed Research}
-Integration and function approximation are the nuts and bolts when 
+Integration and function approximation are fundamental to
 solving practical problems in a variety of areas, including financial risk management \cite{Gla03}, 
 statistical physics~\cite{LanBin14}, 
-Bayesian inference~\cite{GelEtal13}, and uncertainty quantification~\cite{ForEtal09, Smi14a}.  As computational mathematicians, we should aim to provide algorithms that meet the needs of practitioners.  They want algorithms that 
+Bayesian inference~\cite{GelEtal13}, and uncertainty quantification~\cite{ForEtal09, Smi14a}.  As computational mathematicians, we should provide rigorously justified algorithms that meet the needs of practitioners.  They want algorithms that 
 \begin{enumerate}[leftmargin = 15ex]
 \renewcommand{\labelenumi}{\textbf{Goal \arabic{enumi}.}}
     \item \label{GoalOne} Expend the  
 computational effort required to meet their error criterion, but do not expend much more effort;
 \item Require minimal a priori knowledge about the input function;
 
-\item Are computationally efficient; and
+\item Are computationally efficient;
 
-\item Are readily available and easy to use.
+\item Are readily available and easy to use; and
+
+\item Work well in practice.
 \end{enumerate}
 We propose to construct algorithms that meet those goals.
 
-\subsubsection*{Problems to be Solved} The mathematical problems that we wish to solve take the form 
+Some research on multivariate integration and function approximation focuses on establishing a solid theory and neglects to test whether the theory is relevant to applications.  Other research focuses on constructing algorithms that work well in practice, even if they are based on heuristics rather than rigorous theory.  We propose to provide sound theory and that is relevant to practice.  What we may sacrifice initially is tackling more difficult mathematical problems.  We focus on  relatively simpler settings where Goals 1--5 can be attained.
+
+\subsubsection*{Problems to be Solved} The mathematical problems to solve take the form 
 \begin{subequations} \label{problem}
 \begin{align}
     \calf & = \text{a Banach space of inputs}, \qquad 
-    \calg = \text{a Banach space of outputs} \\
+    \calg = \text{a Banach space of outputs}, \\
     \SOL : \calf  \to \calg & = \text{ a linear solution operator} \\
     \nonumber
     & \qquad \text{e.g., integration }\SOL(f) := \int_{\cube} f(\bx) \, \dif \bx \\
@@ -287,9 +291,9 @@ We propose to construct algorithms that meet those goals.
 \end{subequations}
 There exist approximate solutions requiring $n$ function values at well-chosen node sets, $\design$, which take the form
 \begin{equation}
-    \APP: \calf \times \naturals_0 \to \calg = \text{fixed sample size approximation}, \quad \APP(f,n) = \sum_{i=1}^n f(\bx_i) g_i.
+    \APP: \calf \times \naturals_0 \to \calg = \text{fixed sample size approximation}, \quad \APP(f,n) = \sum_{i=1}^n f(\bx_i) g_i, \ \ g_i \in \calg.
 \end{equation}
-For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gaussian quadrature rules.  For function approximation, the $g_i$ are called cardinal functions. Since our solution operator is linear, it is natural to consider approximations that are also linear.  We define $\APP(f,0) = 0$.
+For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gaussian quadrature rules.  For function approximation, the $g_i$ are cardinal functions. It is natural to consider linear approximations since our solution operator is linear.  We define $\APP(f,0) = 0$.
 
 To meet Goal \ref{GoalOne} we need to bound the error of our approximations.  Error bounds often take the form of 
 \begin{subequations} \label{errorBd}
@@ -304,14 +308,14 @@ Here, $\norm[\calf]{\cdot}$ is a (semi-)norm.  E.g., for the composite trapezoid
 \subsubsection*{Adaptive Algorithms} Goal \ref{GoalOne} requires an algorithm of the form
 \begin{subequations} \label{AlgErr}
 \begin{gather}
-    \ALG(f,\varepsilon) : \calf \times (0,\infty) \to \calg = \text{fixed tolerance algorithm},
+    \ALG : \calf \times (0,\infty) \to \calg = \text{fixed tolerance algorithm},
     \intertext{which satisfies}
-    \norm[\calg]{\SOL(f) - \ALG(f,\varepsilon)} \le \varepsilon \quad \text{(with high probability)} \qquad \forall f\in \calc, \ \varepsilon >0,
+    \norm[\calg]{\SOL(f) - \ALG(f,\varepsilon)} \le \varepsilon \quad \text{(with high probability)} \qquad \forall f\in \calc, \ \varepsilon >0.
 \end{gather}
 \end{subequations}
-where $\calc$ is a well-chosen subset of $\calf$ for which $\ALG$ can be proven to succeed.  This means that the user need only specify the error tolerance, $\varepsilon$, and is freed from having to choose the appropriate $n$.  The computational cost is determined by the accuracy requirement.  If the algorithm is random, we are willing to accept that it satisfies the error tolerance with high probability rather than all the time.  
+Here $\calc$ is a well-chosen subset of $\calf$ for which $\ALG$ can be proven to succeed.  This means that the user need only specify the error tolerance, $\varepsilon$, and is freed from having to choose the appropriate $n$.  The computational cost is determined by the accuracy requirement.  If the algorithm is random, we are willing to accept that it satisfies the error tolerance with high probability rather than in all cases.  
 
-Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary $n$.  As candidates for $n$ increase, $\ALG$ must rely on the definition of $\calc$ plus the function values sampled to obtain $\APP(f,n)$ to reliably bound the error 
+Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary $n$.  $\ALG$ relies on the definition of $\calc$ plus the function values required for $\APP(f,n)$ to confidently bound the error:
 \begin{subequations} \label{dataErrBdStop}
 \begin{equation} \label{dataErrBd}
 \norm[\calg]{\SOL(f) - \APP(f,n)} \le \ERR(\{f(\bx_i)\}_{i=1}^n,n) \ \ \text{(with high probability)} \quad \forall f \in \cc, \ n \in \natzero.
@@ -321,9 +325,9 @@ The stopping criterion is then given by
 \ALG(f,\varepsilon) = \APP(f,n') \quad \text{for } n' = \min \{ n : \ERR(\{f(\bx_i)\}_{i=1}^n,n) \le \varepsilon\}.
 \end{equation}
 \end{subequations}
-Here, the values of $n$ for which the error bound is evaluated are not necessarily all non-negative integers, but a sequence of integers, e.g., powers of two.
+The values of $n$ for which the error bound is evaluated are not necessarily all non-negative integers, but typically follow a sequence of integers, e.g., powers of two.
 
-While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required construct a data-driven error bound, $\ERR$, has been neglected.  For simpler problems, such as evaluating elementary and even special functions,
+While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required to construct a data-driven error bound that satisfies \eqref{dataErrBdStop} has been neglected.  For very simple problems, such as evaluating elementary and even special functions,
 \begin{equation} \label{functionValues}
     \sin, \cos, \exp, \log, \erf, \text{ the (inverse) Gaussian CDF, Bessel functions, etc.}
 \end{equation}
@@ -333,16 +337,16 @@ For these problems, $\calf$ and $\calg$ are subsets of real numbers, and we unde
 However, for integration and function approximation, the inputs are functions, for which we only have partial information---function values at a finite number of points.  Therefore, satisfying Goal \ref{GoalOne} is more difficult for these problems than it is for problems of the form \eqref{functionValues}.  
 
 \subsubsection*{Existing Adaptive Algorithms Typically Employ Heuristic Stopping Criteria}
-The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, and optimization routines found in general purpose software.  Examples include MATLAB's \cite{MAT9.3} internal \texttt{integral} and \texttt{fminbnd} functions and the Chebfun \cite{TrefEtal17a} MATLAB library, which adaptively approximates $f$ by Chebyshev polynomials and then overloads MATLAB's \texttt{sum}, \texttt{cumsum}, \texttt{min}, and \texttt{roots} functions to approximate definite integrals, indefinite integrals, minima, and zeros, respectively, of $f$.
+The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, optimization, and root-finding algorithms found in general purpose software.  Examples include MATLAB's \cite{MAT9.3} native \texttt{integral}, \texttt{fminbnd}, and \texttt{fzero} algorithms.  The Chebfun \cite{TrefEtal17a} MATLAB library adaptively approximates $f$ by Chebyshev polynomials and then overloads MATLAB's \texttt{sum}, \texttt{cumsum}, \texttt{min}, and \texttt{roots} functions to approximate definite integrals, indefinite integrals, minima, and zeros of $f$.  The  NAG \citep{NAG23}, the Python scientific library SciPy \cite{SCIPY}, and the Gnu Scientific Library (GSL) \cite{GSL} have automatic quadrature and cubature. 
 
-All of these algorithms, and others like them, fail to provide an answer that meets the error tolerance if the input function is sufficiently spiky.  Figure \ref{quadfailfig}a) depicts a spiky integrand that fools MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  The other adaptive algorithms mentioned above and nearly all others like them may be fooled by spiky functions.  
+All of these algorithms, and others like them, fail to satisfy the error tolerance if the input function is sufficiently spiky.  Figure \ref{quadfailfig}a) depicts a spiky integrand that fools MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  The other adaptive algorithms mentioned above and any algorithm relying on function values may be fooled by sufficiently spiky functions.  However, these algorithms have no theory that specifies which input functions these algorithms will work for.
 
-To have the data-driven error bound of \eqref{dataErrBdStop}, which justifies the guarantees of  \eqref{AlgErr} and satisfies Goal 1, the set $\calc$ must be defined to exclude spiky functions.  The degree of spikiness that must be excluded is related to the parameters that define $\calc$.  
+To have a data-driven error bound satisfying \eqref{dataErrBdStop}, which is needed to satisfy Goal 1, the set $\calc$ must be defined to exclude spiky functions.  This is why $\calc$ is a strict subset of the Banach space $\calf$.  The parameters defining $\calc$ dictate which spiky functions must be excluded.  Parameter choices that make $\calc$ more inclusive lead to more robust and more costly algorithms.
 
-But spiky inputs are not the only cause for adaptive integration routines to fail.  
-For example, MATLAB default integration routine, 
-\texttt{integral} \cite{MAT9.3}, is based on \cite{Sha08a} and is state-of-the-art.  It estimates the quadrature error based on the difference between two different quadratures that use the same nodes. Over 30 years ago, James 
-Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws in this and nearly all adaptive quadratures:
+Spiky inputs are not the only source of failure for adaptive quadratures. 
+MATLAB's
+\texttt{integral} \cite{MAT9.3}, is based on \cite{Sha08a} and is state-of-the-art.  It estimates the quadrature error based on the difference between two different Gauss quadratures using the same nodes. This is a flawed way or estimating error, as explained by James 
+Lyness \cite[p.\ 69]{Lyn83} over 30 years ago:
 \begin{quote}
 	While prepared to take the risk of being misled by chance alignment of zeros in the integrand 
 	function, or by narrow peaks which are ``missed,'' the user may wish to be reassured that for 
@@ -352,6 +356,7 @@ Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws in this and nearly all adaptiv
 	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set 
 	of apparently reasonable problems this will happen.
 \end{quote}
+Figure \label{quadfailfig}b) displays a fluky integrand for which MATLAB's \texttt{integral} fails to meet the specified error tolerance.  It does not fail because of flucuations of the integrand between the nodes.  Rather it fails because the two Gauss quadratures give the same (wrong) answer.  Other adaptive quadratures fail for the same reason that they estimate error by comparing two different quadratures.  Because a heuristic stopping criterion is used, there is no theory to explain which integrands may cause the algorithms to fail.  In contrast, the adaptive quadrature developed by the PI and collaborators \cite{HicEtal14b, Zha18a} and highlighted in Section ?? is not fooled for fluky integrands.
 
 \newlength{\figwidthA}
 \setlength{\figwidthA}{0.45\textwidth}
@@ -363,11 +368,12 @@ Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws in this and nearly all adaptiv
 		a) $\abs{\SOL(f) - \ALG(f,1\text{E}{-14})} = 1 $ &
 		b) $\abs{\SOL(f) - \ALG(f,1\text{E}{-14})} =  2.8\text{E}{-5}$
 		\end{tabular}
-	\caption{Integrands for MATLAB's \texttt{integral} fails. \label{quadfailfig}}
+	\caption{Integrands for which MATLAB's \texttt{integral} fails. \label{quadfailfig}}
 \end{figure}
 
 
 \subsubsection*{The Choice of $\calc$}
+As mentioned above, any algorithm that depends on function values may be fooled by a spiky function, even if that function has all of the regularity or other nice properties guaranteed by the definition of the input space, $\calf$.  Therefore, our algorithms can only be guaranteed to succeed for some subset of the input space, $\calc$.
 
 ======================
 
@@ -838,20 +844,22 @@ include
 	ChoEtal17b,
 	Din15a, 
 	GilEtal16a,
-	GilJim16b,
 	Hic17a,
 	HicJim16a,
 	HicEtal18a,
 	HicEtal17a,
+	GilJim16b,
 	JimHic16a,
 	JohFasHic18a,
 	Li16a,
 	Liu17a,
+	MarEtal18a,
 	mccourt_stable_2017,
-	mishra_hybrid_nodate,
-	mishra_stable_nodate, 
-	rashidinia_stable_nodate,
-	vu_rbf-fd_nodate,
+	MCCEtal19a,
+	mishra_hybrid_2018,
+	MisEtal19a,
+	rashidinia_stable_2016,
+	rashidinia_stable_2018,
 	Zha17a,
 	Zho15a,
 	ZhoHic15a}.
