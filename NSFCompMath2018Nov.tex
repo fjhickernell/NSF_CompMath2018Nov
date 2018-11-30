@@ -5,7 +5,7 @@
 \usepackage[dvipsnames]{xcolor}
 \usepackage[numbers]{natbib}
 \usepackage{hyperref,accents, booktabs}
-\usepackage{algorithm, algorithmic}
+\usepackage{algorithm, algorithmicx}
 \usepackage{cleveref}
 \newcommand{\myshade}{85}
 \colorlet{mylinkcolor}{violet}
@@ -231,6 +231,14 @@
 
 \newcommand\starred[1]{\accentset{\star}{#1}}
 
+\newcommand{\designInf}{\{\bx_i\}_{i=1}^\infty}
+\newcommand{\dataN}{\bigl\{\bigl(\bx_i,f(\bx_i)\bigr)\bigr\}_{i=1}^n}
+\newcommand{\dataNp}{\bigl\{\bigl(\bx_i,f(\bx_i)\bigr)\bigr\}_{i=1}^{n'}}
+\newcommand{\dataNo}{\bigl\{\bigl(\bx_i,f(\bx_i)\bigr)\bigr\}_{i=1}^{n_0}}
+\newcommand{\ErrN}{\ERR\bigl(\dataN,n\bigr)}
+\newcommand{\fint}{f_{\text{int}}}
+\newcommand{\inflate}{\fC}
+
 
 \definecolor{MATLABOrange}{rgb}{0.85,  0.325, 0.098}
 
@@ -240,8 +248,30 @@
 
 
 %\setcounter{page}{1}
+\usepackage{algpseudocode}
+\algnewcommand\algorithmicparam{\textbf{Parameters:}}
+\algnewcommand\PARAM{\item[\algorithmicparam]}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\INPUT{\item[\algorithmicinput]}
+%\algnewcommand\STATE{\item}
+\algnewcommand\RETURN{\State \textbf{Return }}
+
 
 \setlist[description]{font=\normalfont\itshape}
+
+\makeatletter
+\newenvironment{varsubequations}[1]
+ {%
+  \addtocounter{equation}{-1}%
+  \begin{subequations}
+  \renewcommand{\theparentequation}{#1}%
+  \def\@currentlabel{#1}%
+ }
+ {%
+  \end{subequations}\ignorespacesafterend
+ }
+\makeatother
+
 
 
 
@@ -296,35 +326,36 @@ There exist approximate solutions requiring $n$ function values at well-chosen n
 For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gaussian quadrature rules.  For function approximation, the $g_i$ are cardinal functions. It is natural to consider linear approximations since our solution operator is linear.  We define $\APP(f,0) = 0$.
 
 To meet Goal \ref{GoalOne} we need to bound the error of our approximations.  Error bounds often take the form of 
-\begin{subequations} \label{errorBd}
-\begin{gather} 
+\begin{gather}  \tag{ERR-BD} \label{errorBd}
     \norm[\calg]{\SOL(f) - \APP(f,n)} \le \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \, \norm[\calf]{f}, \qquad \forall f\in \calf, \ n \in \natzero, \\
     \intertext{where the norm of a linear operator $\OPER : \calf \to \calg$ is defined as}
+    \nonumber
     \norm[\calf \to \calg]{\OPER(\cdot)} : = \sup_{f \in \calf, \ f \ne 0} \frac{ \norm[\calg]{\OPER(f)}}{\norm[\calf]{f}}.
 \end{gather}
-\end{subequations}
 Here, $\norm[\calf]{\cdot}$ is a (semi-)norm.  E.g., for the composite trapezoidal rule one may choose $\norm[\calf]{f}$ to be the total variation of $f'$, in which case $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} = 1/[8 (n-1)^2]$ \cite[Sect.\ 7.2, (7.15)]{BraPet11a}.  Even if the norm of the error operator has an explicit expression or upper bound, $\norm[\calf]{f}$ is typically unknown a priori.  Therefore, error bound \eqref{errorBd} is insufficient to satisfy Goal \ref{GoalOne}. 
 
 \subsubsection*{Adaptive Algorithms} Goal \ref{GoalOne} requires an algorithm of the form
-\begin{subequations} \label{AlgErr}
+%\begin{subequations}
 \begin{gather}
+\nonumber
     \ALG : \calf \times (0,\infty) \to \calg = \text{fixed tolerance algorithm},
     \intertext{which satisfies}
+    \tag{ALG-CRIT} \label{AlgErr}
     \norm[\calg]{\SOL(f) - \ALG(f,\varepsilon)} \le \varepsilon \quad \text{(with high probability)} \qquad \forall f\in \calc, \ \varepsilon >0.
 \end{gather}
-\end{subequations}
+%\end{varsubequations}
 Here $\calc$ is a well-chosen subset of $\calf$ for which $\ALG$ can be proven to succeed.  This means that the user need only specify the error tolerance, $\varepsilon$, and is freed from having to choose the appropriate $n$.  The computational cost is determined by the accuracy requirement.  If the algorithm is random, we are willing to accept that it satisfies the error tolerance with high probability rather than in all cases.  
 
-Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary $n$.  $\ALG$ relies on the definition of $\calc$ plus the function values required for $\APP(f,n)$ to confidently bound the error:
-\begin{subequations} \label{dataErrBdStop}
-\begin{equation} \label{dataErrBd}
-\norm[\calg]{\SOL(f) - \APP(f,n)} \le \ERR(\{f(\bx_i)\}_{i=1}^n,n) \ \ \text{(with high probability)} \quad \forall f \in \cc, \ n \in \natzero.
-\end{equation}
+Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary $n$.  $\ALG$ requires a \emph{data-driven error bound}, which depends on the definition of $\calc$ and is defined in terms of the function dara required for $\APP(f,n)$, to confidently bound the error:
+%\begin{subequations}\label{dataErrBdStop}
+\begin{multline} \label{dataErrBd} \tag{DATA-BD}
+\norm[\calg]{\SOL(f) - \APP(f,n)} \le \ErrN \quad \text{(with high probability)} \\ \forall f \in \cc, \ n \in \natzero.
+\end{multline}
 The stopping criterion is then given by
-\begin{equation} \label{stopCrit}
-\ALG(f,\varepsilon) = \APP(f,n') \quad \text{for } n' = \min \{ n : \ERR(\{f(\bx_i)\}_{i=1}^n,n) \le \varepsilon\}.
+\begin{equation} \label{stopCrit} \tag{STOP}
+\ALG(f,\varepsilon) = \APP(f,n^*) \quad \text{for } n^* = \min \left \{ n : \ErrN \le \varepsilon \right \}.
 \end{equation}
-\end{subequations}
+%\end{subequations}
 The values of $n$ for which the error bound is evaluated are not necessarily all non-negative integers, but typically follow a sequence of integers, e.g., powers of two.
 
 While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required to construct a data-driven error bound that satisfies \eqref{dataErrBdStop} has been neglected.  For very simple problems, such as evaluating elementary and even special functions,
@@ -373,7 +404,68 @@ Figure \label{quadfailfig}b) displays a fluky integrand for which MATLAB's \text
 
 
 \subsubsection*{The Choice of $\calc$}
-As mentioned above, any algorithm that depends on function values may be fooled by a spiky function, even if that function has all of the regularity or other nice properties guaranteed by the definition of the input space, $\calf$.  Therefore, our algorithms can only be guaranteed to succeed for some subset of the input space, $\calc$.
+As mentioned above, any algorithm that depends on function values may be fooled by a spiky function, even if that function has the regularity and any other nice properties guaranteed by the definition of the input space, $\calf$.  Therefore, our algorithms can only be guaranteed to succeed for some subset of the input space, $\calc$.
+
+The de facto choice of many authors is to choose $\calc$ to be a ball of fixed radius, $\cb_{\rho} := \{f \in \calf : \norm[\calf]{f} \le \rho \}$.  Then one may define $\ALG$ satisfying \eqref{AlgErr} as follows:
+
+\begin{algorithm}
+	\caption{Model Ball\smallscoop-Based $\ALG$ \label{BallAlg}} 
+	\begin{algorithmic}
+	\PARAM a radius, $\rho$; $\APP$ satisfying \eqref{errorBd}
+		\INPUT a black-box function, $f$; an absolute error tolerance,
+		$\varepsilon>0$
+
+\Ensure \eqref{AlgErr} for $\cc = \cb_{\rho}$
+
+\State Choose $\ErrN = \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \rho$ \Comment{to satisfy \eqref{dataErrBd}}
+
+\State Choose $n^*$ according to \eqref{stopCrit}
+
+\RETURN $\ALG(f,\varepsilon) = \APP(f,n^*)$
+\end{algorithmic}
+\end{algorithm}
+
+The parameters are the pieces that are essentially unchanged and defined by the algorithm designer.  The inputs are provided by the user and likely to change each time the algorithm is called.
+This ball-based algorithm is \emph{non-adaptive} because $\ErrN$ does not depend on the function data, but only on the parameter $\rho$, which defines $\calc$.  It is unclear how $\rho$ should be chosen in practice.  
+
+An \emph{adaptive} algorithm, whose computational cost depends on the input $f$ can be constructed for input functions whose norms are not much larger than their minimum norm interpolants.  Assume a sequence of nodes, $\designInf$, and let $f_{\textup{int},n}$, denote the minimum norm interpolant of $f \in \calf$ based on the data $\dataN$.  The following algorithm is defined to succeed for $\calc$ defined as a cone, 
+
+\begin{algorithm}
+	\caption{Prototype Cone-Based $\ALG$ \label{ConeAlg}} 
+	\begin{algorithmic}
+	\PARAM an initial sample size, $n_0$; an inflation factor, $\fC$; $\APP$ satisfying \eqref{errorBd}
+		\INPUT a black-box function, $f$; an absolute error tolerance,
+		$\varepsilon>0$
+
+\Ensure \eqref{AlgErr} for  the cone $\cc = \bigl\{f \in \calf : \norm[\calf]{f} \le \inflate \norm[\calf]{f_{\textup{int},n_0}} \bigr \}$
+
+\State Choose $\ErrN = \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \inflate \norm[\calf]{f_{\textup{int},n_0}}$ \\ \Comment{satisfies \eqref{dataErrBd}}
+
+\State Choose $n^*$ according to \eqref{stopCrit}
+
+\RETURN $\ALG(f,\varepsilon) = \APP(f,n^*)$
+\end{algorithmic}
+\end{algorithm}
+
+Now the data-driven error bound, $\ErrN$, does depend on function data, so the algorithm is adaptive.  The set $\calc$ for which this algorithm succeeds is a \emph{cone}
+
+
+One might imagine an algorithm that makes an initial choice of $n_0$ and uses the function data $\dataNo$ to compute the minimum norm interpolant, $\fint$.  Then one sets $\rho = \inflate \norm[\calf]{\fint}$ for some predetermined inflation factor $\fC$, and applies procedure \eqref{ballAlg}.  This algorithm satisfies the error criterion \eqref{AlgErr} for the \emph{cone} of functions 
+\begin{equation}
+    \calc = \bigl\{f \in \calf : \norm[\calf]{f} \le \inflate \norm[\calf]{\fint}, \text{ where } \fint \text{ is based on } \dataNo \bigr \}.
+\end{equation}
+This process is \emph{adaptive} because the $\rho$ in \eqref{ballAlg} is chosen based on function data.
+
+To summarize, algorithms that succeed for balls, \smallscoop, 
+
+
+then $\ALG(f,\varepsilon) = \APP(f,n')$ is the desired answer.
+
+
+If $\norm[\calf]{\fint} \le \inflate \rho$ for some predetermined inflation factor $\fC$, then $\ALG(f,\varepsilon) = \APP(f,n')$ is the desired answer.  If not, raise $\rho$ to $\inflate \norm[\calf]{\fint}$ and iterate again. Such algorithm works for all $f$ in the cone of functions whose norm is not much larger than that of their minimium norm interpolant based on an initial sample.
+
+
+the norm of this minimum norm interpolant is $\rho'$ , one might compute the minimum norm interpolant, 
 
 ======================
 
