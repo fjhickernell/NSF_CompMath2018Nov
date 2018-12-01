@@ -6,6 +6,7 @@
 \usepackage[numbers]{natbib}
 \usepackage{hyperref,accents, booktabs}
 \usepackage{algorithm, algorithmicx}
+\usepackage{anyfontsize}
 \usepackage{cleveref}
 \newcommand{\myshade}{85}
 \colorlet{mylinkcolor}{violet}
@@ -33,6 +34,7 @@
 %\headsep-0.45in
 
 %%list of acronyms with links
+\newcommand{\QMCSoft}{\hyperlink{QMCSoftlink}{QMCSoft}\xspace}
 \newcommand{\GAIL}{\hyperlink{GAILlink}{GAIL}\xspace}
 \newcommand{\QMC}{\hyperlink{QMClink}{QMC}\xspace}
 \newcommand{\IIDMC}{\hyperlink{IIDMClink}{IID MC}\xspace}
@@ -53,8 +55,8 @@
 \newcommand{\tf}{\widetilde{f}}
 \newcommand{\tbf}{\tilde{\bff}}
 %\DeclareMathOperator{\Pr}{\mathbb{P}}
-\DeclareMathOperator{\cost}{cost}
-\DeclareMathOperator{\comp}{comp}
+\DeclareMathOperator{\cost}{COST}
+\DeclareMathOperator{\comp}{COMP}
 
 \DeclareMathOperator{\loss}{loss}
 \DeclareMathOperator{\lof}{lof}
@@ -174,6 +176,7 @@
 \newcommand{\cl}{L}
 \newcommand{\ct}{\mathfrak{T}}
 \newcommand{\cx}{{\Omega}}
+\newcommand{\cala}{{\mathcal{A}}}
 \newcommand{\calc}{{\mathcal{C}}}
 \newcommand{\calf}{{\mathcal{F}}}
 \newcommand{\calfd}{{\calf_d}}
@@ -305,47 +308,43 @@ Bayesian inference~\cite{GelEtal13}, and uncertainty quantification~\cite{ForEta
 \begin{enumerate}[leftmargin = 15ex]
 \renewcommand{\labelenumi}{\textbf{Goal \arabic{enumi}.}}
     \item \label{GoalOne} Expend the  
-computational effort required to meet their error criterion, but do not expend much more effort;
-\item Require minimal a priori knowledge about the input function;
+computational effort required to meet their error criterion;
+\item \label{GoalTwo} Require minimal a priori knowledge about the input function;
 
-\item Are computationally efficient;
+\item \label{GoalThree} Are computationally efficient;
 
-\item Are readily available and easy to use; and
+\item \label{GoalFour} Are readily available and easy to use; and
 
-\item Work well in practice.
+\item \label{GoalFive} Work well in practice.
 \end{enumerate}
-We propose to construct algorithms that meet those goals.
+We, the PIs, Choi (SCTC) and Hickernell (FJH), will construct algorithms that meet those goals.
 
 Some research on multivariate integration and function approximation focuses on establishing a solid theory and neglects to test whether the theory is relevant to applications.  Other research focuses on constructing algorithms that work well in practice, even if they are based on heuristics rather than rigorous theory.  We propose to provide sound theory and that is relevant to practice.  What we may sacrifice initially is tackling more difficult mathematical problems.  We focus on  relatively simpler settings where Goals 1--5 can be attained.
 
-\subsubsection*{Problems to be Solved} The mathematical problems to solve take the form 
+\subsection{Problems to be Solved} \label{sec:Problems} The mathematical problems to solve take the form 
 \begin{subequations} \label{problem}
 \begin{align}
     \calf & = \text{a Banach space of inputs}, \qquad 
     \calg = \text{a Banach space of outputs}, \\
     \SOL : \calf  \to \calg & = \text{ a linear solution operator} \\
     \nonumber
-    & \qquad \text{e.g., integration }\SOL(f) := \int_{\cube} f(\bx) \, \dif \bx \\
-    \nonumber
-    & \qquad \text{or function approximation } \SOL(f) = f.
+    \MoveEqLeft[6]{\text{e.g., integration }\SOL(f) := \int_{\cube} f(\bx) \, \dif \bx
+    \qquad \text{or function approximation } \SOL(f) = f.}
 \end{align}
 \end{subequations}
 There exist approximate solutions requiring $n$ function values at well-chosen node sets, $\design$, which take the form
 \begin{equation}
     \APP: \calf \times \naturals_0 \to \calg = \text{fixed sample size approximation}, \quad \APP(f,n) = \sum_{i=1}^n f(\bx_i) g_i, \ \ g_i \in \calg.
 \end{equation}
-For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gaussian quadrature rules.  For function approximation, the $g_i$ are cardinal functions. It is natural to consider linear approximations since our solution operator is linear.  We define $\APP(f,0) = 0$.
+For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gaussian quadrature rules.  For function approximation, the $g_i$ are cardinal functions that arise from a (piecwise) polymomial or kriging approximation. It is natural to consider linear approximations since our solution operator is linear.  We define $\APP(f,0) = 0$.
 
-To meet Goal \ref{GoalOne} we need to bound the error of our approximations.  Error bounds often take the form of 
-\begin{gather}  \tag{ERR-BD} \label{errorBd}
-    \norm[\calg]{\SOL(f) - \APP(f,n)} \le \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \, \norm[\calf]{f}, \qquad \forall f\in \calf, \ n \in \natzero, \\
-    \intertext{where the norm of a linear operator $\OPER : \calf \to \calg$ is defined as}
-    \nonumber
-    \norm[\calf \to \calg]{\OPER(\cdot)} : = \sup_{f \in \calf, \ f \ne 0} \frac{ \norm[\calg]{\OPER(f)}}{\norm[\calf]{f}}.
-\end{gather}
-Here, $\norm[\calf]{\cdot}$ is a (semi-)norm.  E.g., for the composite trapezoidal rule one may choose $\norm[\calf]{f}$ to be the total variation of $f'$, in which case $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} = 1/[8 (n-1)^2]$ \cite[Sect.\ 7.2, (7.15)]{BraPet11a}.  Even if the norm of the error operator has an explicit expression or upper bound, $\norm[\calf]{f}$ is typically unknown a priori.  Therefore, error bound \eqref{errorBd} is insufficient to satisfy Goal \ref{GoalOne}. 
+To meet Goal \ref{GoalOne} we need error bounds for our approximations, often taking the form
+\begin{equation}  \tag{ERR-BD} \label{errorBd}
+    \norm[\calg]{\SOL(f) - \APP(f,n)} \le \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \, \norm[\calf]{f} \quad \forall f\in \calf, \ n \in \natzero.
+\end{equation}
+where $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)}$ is the norm of the error operator.  Here, $\norm[\calf]{\cdot}$ is a (semi-)norm.  E.g., for the composite trapezoidal rule $\norm[\calf]{f}$ could be the total variation of $f'$, in which case $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} = 1/[8 (n-1)^2]$ \cite[Sect.\ 7.2, (7.15)]{BraPet11a}.  Even if the norm of the error operator has an explicit expression or upper bound, $\norm[\calf]{f}$ is typically unknown a priori.  Therefore, error bound \eqref{errorBd} is insufficient to satisfy Goal \ref{GoalOne}. 
 
-\subsubsection*{Adaptive Algorithms} Goal \ref{GoalOne} requires an algorithm of the form
+\subsection{Adaptive Algorithms} \label{sec:AdapAlgo} Goal \ref{GoalOne} requires an algorithm of the form
 %\begin{subequations}
 \begin{gather}
 \nonumber
@@ -355,50 +354,41 @@ Here, $\norm[\calf]{\cdot}$ is a (semi-)norm.  E.g., for the composite trapezoid
     \norm[\calg]{\SOL(f) - \ALG(f,\varepsilon)} \le \varepsilon \quad \text{(with high probability)} \qquad \forall f\in \calc, \ \varepsilon >0.
 \end{gather}
 %\end{varsubequations}
-Here $\calc$ is a well-chosen subset of $\calf$ for which $\ALG$ can be proven to succeed.  This means that the user need only specify the error tolerance, $\varepsilon$, and is freed from having to choose the appropriate $n$.  The computational cost is determined by the accuracy requirement.  If the algorithm is random, we are willing to accept that it satisfies the error tolerance with high probability rather than in all cases.  
+Here $\calc$ is a well-chosen subset of $\calf$ for which $\ALG$ can be proven to succeed.  The user need only specify the error tolerance, $\varepsilon$, and is freed from having to choose the appropriate $n$.  The computational cost is determined by the accuracy requirement (see Sect.\ \ref{sec:CompEff}).  If the algorithm is random, we are willing to accept that it satisfies the error tolerance with high probability rather than in all cases.  
 
-Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary $n$.  $\ALG$ requires a \emph{data-driven error bound}, which depends on the definition of $\calc$ and is defined in terms of the function dara required for $\APP(f,n)$, to confidently bound the error:
+Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary sample size.  $\ALG$ requires a \emph{data-driven error bound}, which depends on the definition of $\calc$ and is defined in terms of the function data required by $\APP(f,n)$:
 %\begin{subequations}\label{dataErrBdStop}
 \begin{multline} \label{dataErrBd} \tag{DATA-BD}
 \norm[\calg]{\SOL(f) - \APP(f,n)} \le \ErrN \quad \text{(with high probability)} \\ \forall f \in \cc, \ n \in \natzero.
 \end{multline}
-The stopping criterion is then given by
+The stopping criterion is then
 \begin{equation} \label{stopCrit} \tag{STOP}
 \ALG(f,\varepsilon) = \APP(f,n^*) \quad \text{for } n^* = \min \left \{ n : \ErrN \le \varepsilon \right \}.
 \end{equation}
 %\end{subequations}
 The values of $n$ for which the error bound is evaluated are not necessarily all non-negative integers, but typically follow a sequence of integers, e.g., powers of two.
 
-While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required to construct a data-driven error bound that satisfies \eqref{dataErrBdStop} has been neglected.  For very simple problems, such as evaluating elementary and even special functions,
+While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required to construct a data-driven error bound that satisfies \eqref{dataErrBd} has been neglected. 
+Trustworthy algorithms already exist for situations where the possible inputs, $\calf$, are simply numbers, e.g., for 
 \begin{equation} \label{functionValues}
-    \sin, \cos, \exp, \log, \erf, \text{ the (inverse) Gaussian CDF, Bessel functions, etc.}
+    \SOL = \sin,\ \cos, \ \exp, \ \log, \ \erf, \ \text{ the (inverse) Gaussian CDF, Bessel functions, etc.}
 \end{equation}
-we already have trustworthy algorithms.
-For these problems, $\calf$ and $\calg$ are subsets of real numbers, and we understand well the potential pitfalls of representing these numbers in finite precision.
+However, for integration and function approximation, $\calf$ is a space of functions, for which we only have partial information---function values at a finite number of points.  Therefore, satisfying Goal \ref{GoalOne} is more difficult for these problems than it is for problems of the form \eqref{functionValues}.
 
-However, for integration and function approximation, the inputs are functions, for which we only have partial information---function values at a finite number of points.  Therefore, satisfying Goal \ref{GoalOne} is more difficult for these problems than it is for problems of the form \eqref{functionValues}.  
+\subsection{Existing Adaptive Algorithms Typically Employ Heuristic Stopping Criteria} \label{sec:Heuristics}
+The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, optimization, and root-finding algorithms found in general purpose software.  Examples include MATLAB's \cite{MAT9.5} native \texttt{integral}, \texttt{fminbnd}, and \texttt{fzero} algorithms.  The Chebfun \cite{TrefEtal17a} MATLAB library adaptively approximates $f$ by Chebyshev polynomials and then overloads MATLAB's \texttt{sum}, \texttt{cumsum}, \texttt{min}, and \texttt{roots} functions to approximate definite integrals, indefinite integrals, minima, and zeros of $f$.  The  NAG library \citep{NAG23}, the Python scientific library SciPy \cite{SCIPY}, and the Gnu Scientific Library (GSL) \cite{GSL} have automatic quadrature and cubature. 
 
-\subsubsection*{Existing Adaptive Algorithms Typically Employ Heuristic Stopping Criteria}
-The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, optimization, and root-finding algorithms found in general purpose software.  Examples include MATLAB's \cite{MAT9.3} native \texttt{integral}, \texttt{fminbnd}, and \texttt{fzero} algorithms.  The Chebfun \cite{TrefEtal17a} MATLAB library adaptively approximates $f$ by Chebyshev polynomials and then overloads MATLAB's \texttt{sum}, \texttt{cumsum}, \texttt{min}, and \texttt{roots} functions to approximate definite integrals, indefinite integrals, minima, and zeros of $f$.  The  NAG \citep{NAG23}, the Python scientific library SciPy \cite{SCIPY}, and the Gnu Scientific Library (GSL) \cite{GSL} have automatic quadrature and cubature. 
+All of these algorithms, and others like them, fail to satisfy the error tolerance if the input function is sufficiently spiky.  Figure \ref{quadfailfig}a) depicts a spiky integrand that fools MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  Any algorithm relying on function values may be fooled by sufficiently spiky functions.  However, the algorithms mentioned above have no theory that specifies for which input functions these algorithms will succeed.
 
-All of these algorithms, and others like them, fail to satisfy the error tolerance if the input function is sufficiently spiky.  Figure \ref{quadfailfig}a) depicts a spiky integrand that fools MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  The other adaptive algorithms mentioned above and any algorithm relying on function values may be fooled by sufficiently spiky functions.  However, these algorithms have no theory that specifies which input functions these algorithms will work for.
-
-To have a data-driven error bound satisfying \eqref{dataErrBdStop}, which is needed to satisfy Goal 1, the set $\calc$ must be defined to exclude spiky functions.  This is why $\calc$ is a strict subset of the Banach space $\calf$.  The parameters defining $\calc$ dictate which spiky functions must be excluded.  Parameter choices that make $\calc$ more inclusive lead to more robust and more costly algorithms.
+A data-driven error bound, \eqref{dataErrBd}, which is needed for Goal 1, requires the set $\calc$ to exclude spiky functions.  This is why $\calc$ is a strict subset of the Banach space $\calf$.  Making $\calc$ more inclusive leads to more robust and more costly algorithms.
 
 Spiky inputs are not the only source of failure for adaptive quadratures. 
 MATLAB's
-\texttt{integral} \cite{MAT9.3}, is based on \cite{Sha08a} and is state-of-the-art.  It estimates the quadrature error based on the difference between two different Gauss quadratures using the same nodes. This is a flawed way or estimating error, as explained by James 
-Lyness \cite[p.\ 69]{Lyn83} over 30 years ago:
-\begin{quote}
-	While prepared to take the risk of being misled by chance alignment of zeros in the integrand 
-	function, or by narrow peaks which are ``missed,'' the user may wish to be reassured that for 
-	``reasonable'' integrand functions which do not have these characteristics all will be well. It is the 
-	purpose of the rest of this section to demonstrate by example that he cannot be reassured on this 
-	point. In fact the routine is likely to be unreliable in a significant proportion of the problems it faces 
-	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set 
-	of apparently reasonable problems this will happen.
-\end{quote}
-Figure \label{quadfailfig}b) displays a fluky integrand for which MATLAB's \texttt{integral} fails to meet the specified error tolerance.  It does not fail because of flucuations of the integrand between the nodes.  Rather it fails because the two Gauss quadratures give the same (wrong) answer.  Other adaptive quadratures fail for the same reason that they estimate error by comparing two different quadratures.  Because a heuristic stopping criterion is used, there is no theory to explain which integrands may cause the algorithms to fail.  In contrast, the adaptive quadrature developed by the PI and collaborators \cite{HicEtal14b, Zha18a} and highlighted in Section ?? is not fooled for fluky integrands.
+\texttt{integral} \cite{Sha08a, MAT9.5} is state-of-the-art.  It estimates the quadrature error based on the difference between two different Gauss quadratures using the same nodes. This is a flawed way of estimating error was criticized by 
+Lyness \cite[p.\ 69]{Lyn83} over 30 years ago.  In fact, Lyness claims that automatic quadratures employing this common type of error estimate are ``\ldots likely to be unreliable in a significant proportion of the problems it faces 
+	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set
+	of apparently reasonable problems this will happen.''
+Figure \label{quadfailfig}b) displays a fluky integrand for which MATLAB's \texttt{integral} fails to meet the specified error tolerance.  It does not fail because of flucuations of the integrand between the nodes.  Rather it fails because the two Gauss quadratures give the same (wrong) answer.  Other adaptive quadratures fail for the same reason.  Because a heuristic stopping criterion is used, there is no theory to explain which integrands may cause the algorithms to fail.  In contrast, the adaptive quadrature developed by the FJH and collaborators \cite{HicEtal14b, Zha18a} and highlighted in Section ?? is not fooled for fluky integrands because we use the philosophy outlined in this section.
 
 \newlength{\figwidthA}
 \setlength{\figwidthA}{0.45\textwidth}
@@ -414,13 +404,15 @@ Figure \label{quadfailfig}b) displays a fluky integrand for which MATLAB's \text
 \end{figure}
 
 
-\subsubsection*{The Choice of $\calc$}
-As mentioned above, any algorithm that depends on function values may be fooled by a spiky function, even if that function has the regularity and any other nice properties guaranteed by the definition of the input space, $\calf$.  Therefore, our algorithms can only be guaranteed to succeed for some subset of the input space, $\calc$.
+\subsection{The Choice of $\calc$} \label{sec:CChoice}
+As mentioned above, any algorithm that depends on function values may be fooled by a spiky function, even if that function has the nice properties guaranteed by the definition of the input space, $\calf$.  Therefore, our algorithms can only be guaranteed to succeed for $\calc$, some strict subset of $\calf$. 
 
-The de facto choice of many authors is to choose $\calc$ to be a ball of fixed radius, $\cb_{\rho} := \{f \in \calf : \norm[\calf]{f} \le \rho \}$, which resembles a scoop of ice cream, \smallerscoop.  Then one may define $\ALG$ satisfying \eqref{AlgErr} as follows:
+The de facto choice of many scholars is to choose $\calc$ to be a ball, $\cb_{\rho} := \{f \in \calf : \norm[\calf]{f} \le \rho \}$, which resembles a scoop of ice cream, \smallerscoop.  Then one may define $\ALG$ satisfying \eqref{AlgErr} as in Algorithm \ref{BallAlg}. The \emph{parameters} are the pieces that are essentially unchanged and defined by the algorithm designer, e.g., the initial sample sizes in an existing automatic algorithms such as MATLAB's \texttt{integral} and the Chebfun library.  The inputs are provided by the user and most likely change each time the algorithm is called.
+
+This ball-based algorithm is \emph{non-adaptive} because the error bound $\ErrN$ does not depend on the function data, but only on the parameter $\rho$, which defines $\calc$.  To us, having to choose $\rho$ in advance violates Goal \ref{GoalTwo}.  
 
 \begin{algorithm}
-	\caption{Model Ball-Based $\ALG$ \label{BallAlg}} 
+	\caption{Mock-Up Ball-Based $\ALG$ \label{BallAlg}} 
 	\begin{algorithmic}
 	\PARAM a radius, $\rho$; $\APP$ satisfying \eqref{errorBd}
 		\INPUT a black-box function, $f$; an absolute error tolerance,
@@ -436,13 +428,12 @@ The de facto choice of many authors is to choose $\calc$ to be a ball of fixed r
 \end{algorithmic}
 \end{algorithm}
 
-The parameters are the pieces that are essentially unchanged and defined by the algorithm designer.  The inputs are provided by the user and likely to change each time the algorithm is called.
-This ball-based algorithm is \emph{non-adaptive} because $\ErrN$ does not depend on the function data, but only on the parameter $\rho$, which defines $\calc$.  It is unclear how $\rho$ should be chosen in practice.  
 
-An \emph{adaptive} algorithm, whose computational cost depends on the input $f$ can be constructed for input functions whose norms are not much larger than their minimum norm interpolants.  Assume a sequence of nodes, $\designInf$, and let $f_{\textup{int},n}$, denote the minimum norm interpolant of $f \in \calf$ based on the data $\dataN$.  The following algorithm is defined to succeed for $\calc$ defined as a cone, which resembles \smallcone.
+
+An \emph{adaptive} algorithm, whose computational cost depends on the input $f$, can be constructed for input functions whose norms are not much larger than their minimum norm interpolants.  Assume an infinite sequence of nodes, $\designInf$, and let $f_{\textup{int},n}$, denote the minimum norm interpolant of $f \in \calf$ based on the data $\dataN$.  Algorithm \ref{ConeAlg} is defined to succeed for $\calc$ defined as a \emph{cone}, which resembles \smallcone.
 
 \begin{algorithm}
-	\caption{Prototype Cone-Based $\ALG$ \label{ConeAlg}} 
+	\caption{Mock-Up Cone-Based $\ALG$ \label{ConeAlg}} 
 	\begin{algorithmic}
 	\PARAM an initial sample size, $n_0$; an inflation factor, $\fC$; $\APP$ satisfying \eqref{errorBd}
 		\INPUT a black-box function, $f$; an absolute error tolerance,
@@ -452,494 +443,102 @@ An \emph{adaptive} algorithm, whose computational cost depends on the input $f$ 
 
 \State Choose $\ErrN = \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \inflate \norm[\calf]{f_{\textup{int},n_0}}$ \\ \Comment{satisfies \eqref{dataErrBd}}
 
-\State Choose $n^*$ according to \eqref{stopCrit}
+\State Choose $n^* \ge n$ according to \eqref{stopCrit}
 
 \RETURN $\ALG(f,\varepsilon) = \APP(f,n^*)$
 \end{algorithmic}
 \end{algorithm}
 
-Now the data-driven error bound, $\ErrN$, does depend on function data, so the algorithm is adaptive.  The set $\calc$ for which this algorithm succeeds is a \emph{cone}
+Since the data-driven error bound, $\ErrN$, now depends on function data, this algorithm is adaptive.  The set $\calc$ is a cone because $f \in \calc$ implies $a f \in \calc$ for any real $a$.  The cone $\calc$ is defined by two parameters, the initial sample size and the inflation factor.  Increasing either makes the cone more inclusive and the algorithm more robust (and costly).  
 
+The philosophy underlying Algorithm \ref{ConeAlg} is the following: \emph{what we do not observe about the input function is not much worse than what we observe}.  Making this assumption allows us to satisfy Goal \ref{GoalTwo}.  We need not know too much about the function a priori; we learn it as we sample.
 
-One might imagine an algorithm that makes an initial choice of $n_0$ and uses the function data $\dataNo$ to compute the minimum norm interpolant, $\fint$.  Then one sets $\rho = \inflate \norm[\calf]{\fint}$ for some predetermined inflation factor $\fC$, and applies procedure \eqref{ballAlg}.  This algorithm satisfies the error criterion \eqref{AlgErr} for the \emph{cone} of functions 
-\begin{equation}
-    \calc = \bigl\{f \in \calf : \norm[\calf]{f} \le \inflate \norm[\calf]{\fint}, \text{ where } \fint \text{ is based on } \dataNo \bigr \}.
-\end{equation}
-This process is \emph{adaptive} because the $\rho$ in \eqref{ballAlg} is chosen based on function data.
+Algorithms designed to succeed for cones of inputs are typically more complex than those designed for balls of inputs, just as Algorithm \ref{ConeAlg} is more complex than Algorithm \ref{BallAlg}.  But, we assert that there are compelling advantages in defining the set of inputs for which our algorithm succeeds, $\calc$, as a cone and not a ball:
 
-To summarize, algorithms that succeed for balls, \smallscoop, 
-
-
-then $\ALG(f,\varepsilon) = \APP(f,n')$ is the desired answer.
-
-
-If $\norm[\calf]{\fint} \le \inflate \rho$ for some predetermined inflation factor $\fC$, then $\ALG(f,\varepsilon) = \APP(f,n')$ is the desired answer.  If not, raise $\rho$ to $\inflate \norm[\calf]{\fint}$ and iterate again. Such algorithm works for all $f$ in the cone of functions whose norm is not much larger than that of their minimium norm interpolant based on an initial sample.
-
-
-the norm of this minimum norm interpolant is $\rho'$ , one might compute the minimum norm interpolant, 
-
-
-
-======================
-
-======================
-
-
-
-
-
-The desire for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, and optimization routines found in general purpose software.  
-
-
-It is impossible to expect fixed tolerance algorithm to be successful for all $f \in \calf$ unless As will be explained later
-
-
-
-
-Practitioners 
-want to expend the  
-computational effort required to meet their error criterion, but not much more. 
-Practitioners also want the algorithm to require no more than the problem specification and the 
-error criterion.   Adaptive algorithms fill this need by determining when to stop the computation 
-based on data-driven error bounds, $\herr_n(f)$, where $f$ is the input function and $n$ is the 
-number of nodes (points where $f$ is evaluated).
-
-
-
-Common adaptive algorithms employ \emph{heuristic} error bounds, that sometimes fail, and fail for 
-unknown reasons. Traditional error 
-analysis for numerical algorithms 
-yields rigorous error bounds, $\oerr_n(f)$, which involve norms of the input functions, 
-$\norm[\calf]{f}$.  However, $\norm[\calf]{f}$ is typically unknown a 
-priori.  Thus, traditional  error 
-bounds alone are inadequate  to produce rigorous stopping criteria for adaptive algorithms.
-
-Our project will develop \emph{rigorous} data-driven error bounds that will underpin new adaptive 
-numerical algorithms for integration and function approximation.  The 
-key---discovered in our recent NSF-funded research---is to identify a cone of \emph{reasonable} 
-input functions, 
-$\cc$,  for which the traditional error bounds can certainly be bounded in terms of 
-data-driven error bounds, i.e., $\oerr_n(f) \le \herr_n(f)$ for all $f \in \cc$.  To guarantee their 
-correctness, our data-driven error bounds typically are different than the heuristics commonly 
-employed.
-Our new adaptive algorithms will yield answers with the desired accuracy and require only 
-specification of the problem and the error tolerance---not a bound on $\norm[\calf]{f}$. 
-These adaptive algorithms will be implemented in our freely available \GAIL software library.  They 
-will 
-be tested on various applications problems to ensure that theory matches practice.  The 
-development, implementation and application of these algorithms will involve high school 
-students through senior faculty in a variety of disciplines.
-
-\subsection{An Illustrative Example: Integration by the Trapezoidal Rule}  
-\label{TrapIllSect}
-We introduce some 
-key ideas in our proposed research via the problem of univariate integration.  Calculus 
-students are taught to approximate the definite integral by the trapezoidal rule 
-\cite[Sect.\ 7.2, (7.15)]{BraPet11a}:
-\begin{gather}
-\label{traprule}
-\int_0^1 f(x) \, \dif x \approx T_n(f):= \frac1{2n} \left[f(0) + 2f(1/n) + \cdots + 2f(1-1/n) + f(1) \right ], \\
-\label{traperrbd}
-\err_n(f) := \abs{\int_0^1 f(x) \, \dif x - T_n(f)}  \le \frac{\Var(f')}{8 n^2} =: \oerr_n(f),
-\end{gather}
-where the total variation of the first derivative is defined as 
-\begin{equation*}
-\Var(f') : = \sup \left \{\widehat{V}(f',\{t_i\}_{i=0}^n) := \sum_{i=2}^{n-1}  \abs{f'(t_i) - f'(t_{i-1})} \, \Big 
-\vert \, 
-\forall \text{ partitions }  \{t_i\}_{i=0}^n \text{ of } [0,1], \ \forall n \in \naturals \right \}.
-\end{equation*} 
-A partition of an interval is an ordered subset including both endpoints.
-The practitioner wants to know how large $n$ 
-must be to ensure that $\err_n(f)  \le \varepsilon$ for a prescribed 
-absolute error tolerance $\varepsilon$.  Ensuring that $\oerr_n(f) \le \varepsilon$ is sufficient, but 
-this requires an upper bound on $\Var(f')$, which is normally unavailable  unless $f$ has a simple 
-form.
-
-Numerical analysis texts  \cite[p.\ 223--224]{BurFai10}, \cite[p.\ 233]{CheKin12a}, 
-and  \cite[p.\ 270]{Sau12a} propose estimating the absolute error of $T_n(f)$ by 
-\begin{equation} \label{tradtraperrest}
- \err_n(f) \approx  \abs{\frac{T_n(f) - T_{n/2}(f)}{3}} =: \herr_n(f).
-\end{equation}
-Although this $\herr_n(f)$ is valid in some cases, it is flawed.  This $\herr_n(f)$  fails for 
-spiky integrands whose 
-spikes fall  between the nodes as in Figure \ref{quadfailfig}(a).  Worse, this $\herr_n(f)$ can fail 
-for 
-integrands that are \emph{not spiky} if $T_n(f)$ is coincidentally (nearly) 
-the same as  $T_{n/2}(f)$ (see Figure \ref{quadfailfig}(b)).  Over 30 years ago, James 
-Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws of nearly all adaptive quadratures:
-\begin{quote}
-	While prepared to take the risk of being misled by chance alignment of zeros in the integrand 
-	function, or by narrow peaks which are ``missed,'' the user may wish to be reassured that for 
-	``reasonable'' integrand functions which do not have these characteristics all will be well. It is the 
-	purpose of the rest of this section to demonstrate by example that he cannot be reassured on this 
-	point. In fact the routine is likely to be unreliable in a significant proportion of the problems it faces 
-	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set 
-	of apparently reasonable problems this will happen.
-\end{quote}
-Figure \ref{quadfailfig}(b) depicts a reasonable integrand for which $\herr_n(f)$ in 
-\eqref{tradtraperrest} fails.  Figure 
-\ref{quadfailfig}(c) depicts a reasonable integrand for which the error estimate, $\herr_n(f)$, 
-used 
-by  
-MATLAB's adaptive quadrature 
-\texttt{integral} \cite{MAT9.3} fails.  
-
-\begin{figure}[h]
-	\begin{tabular}{>{\centering}m{0.31\textwidth}@{\quad}>{\centering}m{0.31\textwidth}@{\quad}>{\centering}m{0.3\textwidth}}
-		\includegraphics[width=0.3\textwidth]{ProgramsImages/SpikyFoolTrapezoidalcolor.eps} &
-		\includegraphics[width=0.3\textwidth]{ProgramsImages/FlukyFoolTrapezoidalcolor.eps} &
-		\includegraphics[width=0.3\textwidth]{ProgramsImages/FlukyFoolIntegralcolor.eps} 
-		\tabularnewline
-		(a) $\err_{100}(f) = 1 $ &
-		(b) $\err_{100}(f) =  1.4\text{E}{-4}$ &
-		(c) $\err_{150}(f) =  2.8\text{E}{-5}$
-		\end{tabular}
-	\caption{Integrands for which $\herr_n(f) = 0$ but 
-	$\err_n(f) \ne 0$. \label{quadfailfig}}
-\end{figure}
-
-Despite Lyness's gloomy portrayal of adaptive quadratures, the PI and his collaborators have 
-developed an adaptive trapezoidal algorithm that \emph{succeeds for all reasonable integrands}, 
-although 
-it 
-may fail for spiky integrands \cite{HicEtal14a,HicRazYun15a}. The key is a 
-data-based upper bound on $\Var(f')$.  
-
-Here we outline the key arguments from \cite{HicRazYun15a}.  Let 
-$\size(\{t_i\}_{i=0}^n) : = \max_{1 \le i \le n} t_i - t_{i-1}$ denote the partition width.  By 
-definition, $\Var(f')$ is bounded below by $\widehat{V}(f',\{t_i\}_{i=0}^n)$ for any partition. 
-Reasonable integrands are defined as those functions for which an inflated lower bound on  
-$\Var(f')$ provides an \emph{upper bound} on $\Var(f')$:
-\begin{multline} \label{conedef}
-\cc := \Bigl \{ f \in C^1[0,1]: \Var(f') \le \fC(\size(\{t_i\}_{i=0}^n)) \hV(f',\{t_i\}_{i=0}^n) \text{ for all }   n 
-\in \naturals \\
- \text{and partitions } \{t_i\}_{i=0}^n \text{ with } 
-\size(\{t_i\}_{i=0}^n) < \hcut \Bigr \}, \qquad  \fC(h) := \frac{\fC_0 \hcut}{\hcut - h}, \quad \fC_0 
-> 1, \ 
-\ 0 < \hcut < 1.
-\end{multline}
-This set of reasonable integrands, $\cc$, is a \emph{cone} since $f \in \cc \implies cf \in \cc$ 
-for 
-any 
-constant $c$.  The 
-parameters $\hcut$ and $\fC_0$ determine how inclusive this 
-cone of reasonable functions is.  It is shown in \cite{HicRazYun15a} that $\Var(f')$ can rigorously be 
-bounded above by an 
-inflated variation of the derivative of the linear spline, which depends only on function values, not on 
-derivative values:
-\begin{subequations} \label{tVdef}
-\begin{gather} 
-\tV_n(f) 
-% & : = \sum_{i=1}^{n-1} \abs{ \frac{f((i+1)/n)-f(i/n)}{1/n} - \frac{f(i/n)-f((i-1)/n)}{1/n}}  \\& 
-:= n\sum_{i=1}^{n-1} \abs{f((i+1)/n)-2f(i/n)+f((i-1)/n)}, 
-\\ \Var(f') \le \fC(2/n) \tV_n(f),  \ \ 
-\forall 
-f \in \fC,  \ n > 2 /\hcut.
-\end{gather}
-\end{subequations}
-This provides a data-driven upper bound on the error  of the trapezoidal rule, namely,
-\begin{equation} \label{guartraperrest}
-\err_n(f) \le \oerr_n(f) \le \herr_n(f) := \frac{\fC(2/n) \tV_n(f)}{8n^2} \qquad 
-\forall 
-f \in \fC,  \ n > 2 \hcut.
-\end{equation}
-An adaptive quadrature, Algorithm \ref{Trapalg},  is constructed by increasing $n$ until 
-$\herr_n(f)$ does 
-not exceed the error tolerance, $\varepsilon$.
-
-\begin{algorithm}
-	\caption{Adaptive Trapezoidal Rule \label{Trapalg}} 
-	\begin{algorithmic}[1]
-		\REQUIRE a black-box function, $f$; an absolute error tolerance,
-		$\varepsilon>0$; the maximum partition width, $\hcut$; the constant $\fC_0 > 1$;  the 
-		maximum number of trapezoids, $n_{\max}$
-
-\ENSURE $\abs{\int_0^1 f(x) \dif x - \ct(f,\varepsilon)} \le \varepsilon$, provided $f \in \cc$
-
-\STATE $n \leftarrow \lfloor 1 /\hcut \rfloor + 1$
-
-\REPEAT
-
-\STATE $n \leftarrow 2n$
-
-\STATE Compute $\herr_n(f)$ according to \eqref{guartraperrest}
-
-\UNTIL  $\herr_n(f) \le \varepsilon$ or $n > n_{\max}$
-
-\STATE Compute $\ct(f,\varepsilon) = T_n(f)$ according to \eqref{traprule}.
-		
-\end{algorithmic}
-	\end{algorithm}
-
-
-\subsection{Key Ideas Illustrated by the Adaptive Trapezoidal Rule Algorithm 
-\ref{Trapalg}} 
-\label{subsect:trap}
-
-\begin{description}[leftmargin=2.5ex]
-	\item[Bound the error by bounding the semi-norm of $f$] Algorithm \ref{Trapalg} succeeds 
-	by 
-	\emph{bounding} 
-	$\Var(f')$---a key term in 
-	$\oerr_n(f)$ in \eqref{traperrbd}---for reasonable functions:
-	\begin{equation*}
-	\underbrace{\err_n(f)}_{\text{actual error}} \ \ \underbrace{\le}_{\text{all } f} \ \ 	
-	\underbrace{\oerr_n(f)}_{\text{theoretical  bound}} \ \ \underbrace{\le}_{f \in \cc} \ \ 
-	\underbrace{\herr_n(f)}_{\text{data-driven  bound}} .
-	\end{equation*}
-	Typical  adaptive quadrature 
-	algorithms 
-	remain 
-	flawed because they assume that the difference between two quadrature rules is indicative of the 
-	error of one of them as in \eqref{tradtraperrest}.  
-	
-	\item[Identify a cone, $\cc$, of reasonable functions] Our set of reasonable functions is a 
-	\emph{cone} 
-	defined precisely in \eqref{conedef}.  The widest spike must be wider than the minimum 
-	width, $\hcut$.  
-	The bound of $\Var(f')$ in terms of an inflated $ \hV(f',\{t_i\}_{i=0}^n)$ excludes functions with 
-	large
-	changes in $f'$ over small intervals.
-	
-	\item[$\cc$ is non-convex] A convex combination of two reasonable 
-	functions, $f_1$ and 
-	$f_2$, may produce 
-	a spiky function as illustrated below (the narrow width, not the height makes it a spike):
-	
-	\centerline{\includegraphics[width = 0.35\textwidth]{ProgramsImages/broadpk.png}
-	\includegraphics[width = 0.35\textwidth]{ProgramsImages/choppedpk.png}
-\includegraphics[width = 0.35\textwidth]{ProgramsImages/narrowpk.png}}
-
-\vspace{-4ex}
-  \noindent A non-convex cone of input functions, $\cc$, is key to an adaptive algorithm 
-  that outperforms non-adaptive algorithms.  For convex sets of input functions---such as 
-  balls---adaptive algorithms have no 
-  advantage under rather 
-  general conditions  \cite[Chap.\ 4, Corollary 5.2.1]{TraWasWoz88}.
-	
-
-	\item[Bound the computational cost of the algorithm] Let $\cost(\ct,f,\varepsilon)$ denote the 
-	computational cost or number of function values  required by 
-	Algorithm \ref{Trapalg} to obtain $\ct(f,\varepsilon)$ for $f \in \cc$.  It is shown that 
-	$\cost(\ct,f,\varepsilon) = \Order (\sqrt{\Var(f')/\varepsilon})$ in \cite{HicRazYun15a}.  
-	(Since $\Var(f')$ is unbounded for $f \in \cc$, we 
-	include it in the expression for the computational cost.)  The computational cost for Algorithm 
-	\ref{Trapalg} is asymptotically the same as that for a non-adaptive trapezoidal rule when 
-	$\Var(f')$ has a known 
-	upper bound.  For 
-	Algorithm \ref{Trapalg} an upper bound on $\Var(f')$ is \emph{not required}.
-	
-	\item[Show that the adaptive algorithm is optimal] The \emph{computational complexity} of this 
-	integration problem is the computational cost of the best possible algorithm that is based on 
-	function values only,  
-	\[
-	\comp(v,\varepsilon)  := \inf_ {\ct'} \ \sup\{\cost(\ct',f,\varepsilon) : f \in \cc, \Var(f') \le v \} .
-	\]
-	It is shown in \cite{HicRazYun15a} that $\comp(v,\varepsilon) = \Order 
-	(\sqrt{v/\varepsilon})$ by constructing fooling functions that look like zero to the algorithm, but 
-	whose 
-	integral is nonzero. Our algorithm is asymptotically optimal.
-	
-	\item[The definition of adaptive algorithm includes parameters] MATLAB's 
-	\texttt{integral} \cite{MAT9.3}
-	assumes an initial number of nodes and a maximum sample size.  
-	%Chebfun \cite{TrefEtal17a}, a numerical library that adaptively integrates functions via 
-	%Chebyshev polynomial approximations assumes default values for these parameters as well as 
-	%others.
-	These parameters are set to be reasonable for most situations, but may be modified if 
-	necessary.  The parameters  $\hcut = 0.02, \fC_0 = 
-	1.5$, and 
-	$n_{\max} = 10^7$ are meant to remain the same from problem to problem, but may be 
-	modified 
-	to 
-	enhance speed or increase robustness.
-	
-	\item[The adaptive algorithm is available]  Algorithm 1 and related adaptive algorithms 
-	developed 
-	by the PI and his collaborators have been published in the Guaranteed Automatic 
-	Integration 
-	Library (\hypertarget{GAILlink}{GAIL}) \cite{ChoEtal17b}.  We propose to further develop this 
-	library (Sect.\ 
-	\ref{BroaderTwoSec}).
-	
-	\item[An error bound exists even if  time is the limiting factor]  Specifying the number of 
-nodes rather than the error tolerance is accomplished by setting $n_{\max}$ to be this
- number and $\varepsilon = 0$.  The error bound, $\herr_n(f)$, is not needed to 
-stop the algorithm but is available to inform the user how large the error might be.
-
-	\item[This algorithm is globally adaptive] The  quadrature algorithm 
-	described above adaptively determines $n$ based on function data, which we term \emph{global 
-	adaptivity}.  Algorithms that determine the pattern of the nodes---as well as their number---based 
-	on function data are termed \emph{locally adaptive}.  Sect.\ 
-	\ref{previousmeritsubsec} describes new locally adaptive algorithms.
-	
-	\item[Optimality is only for integrands with limited smoothness] This adaptive quadrature 
-	algorithm is 
-	optimal for the cone of integrands, $\cc$, however, it is 
-	sub-optimal for smoother integrands.  See Sect.\ \ref{SectUniProb} for proposed research on 
-	algorithms with
-	higher order convergence.
-	
-\end{description}
-
-Our proposed research addresses problems beyond just univariate integration.  The next 
-subsections provide the notation for these problems and outline our research goals.
-
-
-\subsection{Traditional Error Analysis} Let $\calf$ be a Banach space of input functions 
-defined on the domain $\cx$, let
-$\calg$ be a Banach space of possible 
-solutions, and let $S:\calf \to \calg$ be a solution operator.  Some examples of solution 
-operators for integration, function approximation, and optimization are
-\begin{equation} \label{probs}
-S = \INT: f \mapsto \int_{\Omega} f(\bx) \, \dif \bx, \qquad S = \APP:f \mapsto f, \qquad S = 
-\OPT :f \mapsto 
-\min_{\bx \in \Omega} f(\bx).
-% \\S: f \mapsto u, \text{ where } u'' + u = f(x), \quad u(0) = u(1) = 0.
-\end{equation}
-Let $\{A_n: 
-\calf \to \calg\}_{n \in \calI}$ be a sequence of algorithms.  Each $A_n$  samples the 
-input function, 
-$f$, at $n$ nodes
-(data sites) $\desn \subset \cx$, and produces an approximation to $S(f)$ based 
-on $\{(\bx_i,f(\bx_i))\}_{i=1}^n$.  Typically, $A_n(f) = \sum_{i=1}^n w_i f(\bx_i)$ for some 
-$\{w_i\}_{i=1}^n \subset \calg$.
-Here 
-$\calI$ is an index set of positive integers. 
-
-The error bounds  for $A_n$ commonly take the  form
-\begin{gather} \label{typicalerr}
-\err_n(f): = \norm[\calg]{S(f) - A_n(f)} \le \norm{A_n} \norm[\calf]{f} =: \oerr_n(f) \qquad \forall f \in 
-\calf, \ n \in 
-\calI, 
-\\ \text{where }\norm{A_n}  : = \sup_{0 \ne f \in \calf} \frac{\norm[\calg]{S(f) - A_n(f)}} 
-{\norm[\calf]{f}}.
-\end{gather} 
-It may be that $\norm[\calf]{f}$ is a 
-semi-norm rather than a norm as in  \eqref{traperrbd}.  The term $\norm{A_n}$
-represents the worst case error for functions in the unit ball in $\calf$ and is a quality measure for 
-the algorithm, including the
-choice of nodes.  In some cases 
-$\norm{A_n}$ has an explicit expression ($1/(8n^2)$ in \eqref{traperrbd}), but in other 
-cases one 
-can only derive an upper bound on $\norm{A_n}$ or the convergence rate of 
-$\norm{A_n}$. 
-
-\subsection{Adaptive Algorithms} From a practical standpoint, users would like an adaptive 
-algorithm, 
-$\fA$, which only requires as input a black box function subroutine, $f$, and an error tolerance, 
-$\varepsilon$, and which satisfies the error criterion
-\begin{equation} \label{errorcrit} \tag{CRIT}
-\norm[\calg]{S(f) - \fA(f,\varepsilon)} \le \varepsilon.
-\end{equation}
-In theory, one may define $\fA(f,\varepsilon) = A_n(f)$, where $n = \min \{ n' \in \calI : \norm{A_n} \le 
-\varepsilon / 
-\norm[\calf]{f}\}$.  But, even if $\norm{A_n}$ is known explicitly, $\norm[\calf]{f}$ is 
-typically 
-unknown and cannot be 
-bounded easily.  Thus, the error bound $\oerr_n(f)$ in \eqref{typicalerr} does not directly support an 
-adaptive algorithm.
-
-Adaptive algorithms require error bounds, $\herr_n(f)$, computed from function data, 
-$\{(\bx_i,f(\bx_i))\}_{i=1}^n$, and not from a priori knowledge of the (semi-)norm of the function.  
-Common adaptive algorithms are inadequate because there is no theory justifying
-$\oerr_n(f)  \le \herr_n(f)$.  MATLAB's \texttt{integral} bases its $\herr_n(f)$ on 
-the comparison of two Gaussian quadratures.  Chebfun truncates its Chebyshev polynomial 
-approximation to $f$ when the observed high order Chebyshev coefficients reach round-off 
-error, in spite of the possibility that even higher order coefficients could be significant.
-
-There is a family of adaptive algorithms with a theoretical foundation based on interval 
-arithmetic described in \cite{MoKeCl09} and \cite{Rum10a} and implemented in INTLAB 
-\cite{Rum99a}.  This approach requires the function subroutines to take \emph{interval} arguments 
-and return \emph{interval} outputs.  We do not pursue this approach because existing black-box 
-function subroutines normally do not meet these requirements.
-
-\subsection{What We Propose}
-The numerical algorithm we use everyday to compute $\cos(x)$ to our desired accuracy does 
-not require us to determine how many terms in the polynomial 
-approximation are required.  The computation is \emph{automatic}.  Furthermore, theory 
-underpins this algorithm.  We believe that the same should be possible for problems that are 
-somewhat more difficult than evaluating  functions of real variables, such as the problems in 
-\eqref{probs}.  
-
-As computing power grows, and is matched by the complexity of the simulations attempted, certain 
-fundamental problems, such as integration and function approximation should become 
-as effortless as computing $\cos(x)$.  If the user specifies the problem and the error tolerance, the 
-algorithm should be able to provide the correct answer.  Unfortunately, 
-that is not yet the case because our current adaptive integration and function approximation 
-algorithms do not have sound theoretical underpinnings.
-
-To bring us closer to our ideal, we propose the following research program:
+\centerline{  \largercone \qquad \qquad \medscoop \hspace{-11ex}\raisebox{-2.5ex}{\color{red}\fontsize{60}{72}\selectfont $\times$}
+      }
 \begin{itemize}
-	\item Develop adaptive algorithms, $\fA$, which depend on the 
-	problem definition, the cone of reasonable functions, $\cc$, and the
-	function data, and which certainly satisfy error criterion \eqref{errorcrit} for all $f \in \cc$.  
-	
-	\item The adaptive algorithms may be based on familiar algorithms, $A_n$, with 
-	well-understood theoretical error bounds, $\oerr_n(\cdot)$.  
-	
-	\item The cones, $\cc$, will be defined in a way that facilitate data-driven error 
-	bounds, $\herr_n(\cdot)$, which satisfy $\oerr_n(f) \le \herr_n(f)$ for all $f\in \cc$.  A key 
-	challenge is to identify the right $\cc$ and $\herr_n(\cdot)$.  For any silly 
-	$\herr_n(\cdot)$, one could define $\cc = \{f \, \vert \, \oerr_n(f) 
-	\le \herr_n(f) \}$, but we insist that the definition of $\cc$ \emph{not} depend on specific data, 
-	such as those used to define $\herr_n(f)$.
-	
-	\item Then $\fA(f,\varepsilon) = A_n(f)$ will be defined by choosing $n$ such that $\herr_n(f) \le 
-	\varepsilon$.  This will ensure that \eqref{errorcrit} is satisfied for all $f \in \cc$.  
-	
-	\item Letting $\cost(\fA,f,\varepsilon)$ denote the computational cost of $\fA$, we will
-	determine $p$ such that 
-	$\cost(\fA,f,\varepsilon)  = \Order\bigl((\norm[\calf]{f}/\varepsilon)^p\bigr)$ as 
-	$\norm[\calf]{f}/\varepsilon 
-	\to 
-	\infty$.  
-	
-	\item Letting $\comp(v,\varepsilon)$ denote the computational complexity of the problem, i.e., 
-	the computational cost of the best algorithm that succeeds for all $f \in \cc$ with $\norm[\calf]{f} 
-	\le v$, we aim to demonstrate that 
-	our 
-	adaptive algorithms are asymptotically optimal, i.e., $\comp(v,\varepsilon) = \Order 
-	\bigl((v/\varepsilon)^p \bigr)$ for the same $p$ as above.  These kinds of results are common in 
-	information-based complexity \cite{TraWer98,TraWasWoz88}, but typically for input functions in 
-	a ball, not a cone.
-	
-	\item These adaptive algorithms, $\fA$, will be implemented in our freely-available \GAIL 
-	\cite{ChoEtal17b}.  Their 
-	effectiveness will be demonstrated on various practical problems such as those in \cite{VirLib17a} 
-	and those arising from collaborations.
-	
-	\item Academics, practitioners and students will be introduced to these 
-	new adaptive algorithms.  Students (high school through PhD) contributing to \GAIL will learn to 
-	collaboratively develop robust, tested, 
-	and documented numerical software that supports reproducible research.  This will support their 
-	future careers and strengthen our country's computational science capability.
-	
+    \item Algorithms optimized for non-convex cones are adaptive, whereas algorithms optimized for balls will not be.  Thus, easier problems take less computational effort than harder ones.  This helps us meeet Goal \ref{GoalThree}.
+    
+    \item Having the initial sample size, $n_0$ and the inflation factor, $\inflate$, as rarely changed algorithm parameters is conceptually easier than having the radius of the ball of inputs as a rarely changed parameter, or even requiring the user to input it.  This helps us meet Goal \ref{GoalTwo}.
 \end{itemize}
 
+Algorithm \ref{ConeAlg} provides a paradigm for adaptive algorithms, which we have used in past research described in Section \ref{}.  However, there is much more research to be done. In some cases $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)}$ and/or $\norm[\calf]{f_{\textup{int},n_0}}$ are computationally expensive, so alternative error bounds, $\ERR$, must be constructed.  Ideas on how to do this are given in Section \ref{}.  Moreover, the cone $\calc$ in Algorithm \ref{ConeAlg} depends on the specific choice of nodes used $\APP$, which we want to avoid.  How we do this is explained in Sect.\ \ref{}.
 
+\subsection{How Do We Know that $f$ for Our Problem Is in the Cone $\calc$?} \label{sec:HowKnow}  
 
-Our recent NSF-Funded research---summarized in the next section---has obtained some success in 
-the direction of our intended research.  The proposed research detailed 
-in Sect.\ \ref{secProposed} aims to significantly enlarge the family of adaptive numerical 
-algorithms that have both a theoretical basis and practical application.  The last section details are 
-efforts aimed at broader impact.
+This question often arises.  Our answer is, ``We cannot know for sure.  The cone definition expresses prior beliefs.''  Similarly, we cannot know whether $f$ is in some ball, $\cb_{\rho}$.  We can be sure that if $\ALG(f,\varepsilon)$ fails to meet the error criterion, \eqref{AlgErr}, then $f$ lies outside $\calc$.  In this way we are pathologists, the doctors who determine why the patient died.
 
+More can be done.  In many cases there are data-driven necessary conditions that may alert the user that the input function lies outside the cone.  For example, in Algorithm \ref{ConeAlg}, $f \in \calc$ implies that $\norm[\calf]{f_{\textup{int},n^*}} \le \inflate \norm[\calf]{f_{\textup{int},n_0}}$.  If this does not hold, then one should make the cone more inclusive by increasing $\inflate$ and/or $n_0$.  In our existing and proposed adaptive algorithms,  we endeavor to derive such necessary conditions.
+
+\subsection{Computational Efficiency} \label{sec:CompEff}
+
+Goal \ref{GoalThree} requires our algorithm to use as little computational time or computational operations as possible.  We let $\cost(\ALG, f,\varepsilon)$ denote the \emph{information cost} of $\ALG$, i.e., the number of function data required by $\ALG(f,\varepsilon)$. To measure the overall performance of an algorithm, we define 
+\begin{equation}
+    \cost(\ALG, \calc, \varepsilon,\rho) : = \max_{f \in \calc \cap \cb_{\rho}} \cost(\ALG,f,\varepsilon),
+\end{equation}
+recognizing that this cost will in general increase as the norm of the input increases. Letting $\cala(\cc)$ denote the set of all possible algorithms, we define the \emph{computational complexity} of a problem as the information cost of the best algorithm
+\begin{equation}
+    \comp(\cala(\cc), \varepsilon,\rho) := \min_{\ALG \in \cala(\cc)} \cost(\ALG, \calc, \varepsilon,\rho) .
+\end{equation}
+We define an algorithm to be essentially optimal if there exists some fixed positive $\omega$ for which
+\begin{equation}
+    \cost(\ALG, \calc, \varepsilon,\rho) \le \comp(\cala(\cc), \omega \varepsilon,\rho) \qquad \forall \varepsilon,\rho > 0.
+\end{equation}
+Part of Goal \ref{GoalThree} is to construct essentially optimal algorithms for cones, $\calc$, and not the balls, $\calc = \cb_{\rho}$, that have been studied in the past.
+
+The $\varepsilon^{-1}$-dependence of the information cost of an algorithm, $\cost(\ALG, \calc, \varepsilon,\rho)$, and the complexity of a problem,  $\comp(\cala(\cc), \varepsilon,\rho)$, is influenced by the input space, $\calf$, among other things.  If $\calf$ requires more smoothness, then the cost and complexity may grow more slowly with $\varepsilon^{-1}$.  For example, if $\calf$  assumes only finite variation of the first derivative, the complexity of univariate integration is $\Order(\varepsilon^{-1/2})$, but if $\calf$ assumes finite variation of the \emph{third} derivative, then the complexity of univariate integration is $\Order(\varepsilon^{-1/4})$.  The choice of approximation, $\APP$, also influences the information cost of $\ALG$.  For example, the composite trapezoidal rule can achieve $\Order(\varepsilon^{-1/2})$ cost for integrands whose first derivatives have finite variation but not $\Order(\varepsilon^{-1/4})$ cost for integrands with sufficient smoothness.
+
+Another aspect of Goal \ref{GoalThree} is to construct algorithms, $\ALG$, based on approximations, $\APP$, that can take advantage of additional smoothness to achieve low cost, but are still essentially optimal if the input, $f$, has only limited smoothness.  That is, we want a single $\ALG$ that performs well across a spectrum of  $\calc$ assuming different smoothnesses.
+
+For multivariate problems one may face the \emph{curse of dimensionality}.  Suppose that the input, $f$, is a function of $d$ variables. If we label the essential pieces of our problem, approximation, algorithm, etc.\ by the number of variables involved, i.e., 
+\begin{equation}
+    \calf_d, \quad \calg_d, \quad \calc_d, \quad \SOL_d, \quad \APP_d,\quad \ALG_d, \quad \cala(\calc_d),
+\end{equation}
+(recognizing that the output space may or may not depend on $d$), then we want to understand how $\cost(\ALG_d, \calc_d, \varepsilon,\rho)$ and $\comp(\cala(\cc_d), \varepsilon,\rho)$ depend not only on $\varepsilon$, but also on $d$.  This is the the question of \emph{tractability}, an active area of research during the past two decades, much of which is contained in the three volume series by Novak and Wo\'zniakowski \cite{NovWoz08a,NovWoz10a,NovWoz12a}.
+
+Different flavors of tractability are defined in terms of how  $\comp(\cala(\cc_d), \varepsilon,\rho)$ grows with $d$.  By choosing appropriate norms for $\calf$ and $\calg$, we may often identify situations that avoid the curse of dimension (exponential growth in $d$) and even achieve strong tractability (independence of $d$).   For example, if the norms reflect that the importance of the variables, $x_1, x_2, \ldots$, decays quickly enough, which applies in some finance calculations, there is strong tractability.  Nearly all tractability studies assume that $\calc_d$ is a ball.  Goal \ref{GoalThree} will involve determining the tractability of problems and algorithms when $\calc_d$ is a cone.
+
+If the information cost of $\ALG(f,\varepsilon)$ is $n^* = \cost(\ALG,f,\varepsilon)$, the cost of one $f(\bx)$ value as $\$_d(f)$, where $\bx$ is a $d$-vector, and the cost required by $\ALG(f,\varepsilon)$ to manipulate $\dataN$ is $\Order(n^{*p})$, then the total computational cost of $\ALG(f,\varepsilon)$ is 
+\[
+ \Order(\$_d(f)n^* + n^{*p})
+\]
+The requirement of Goal \ref{GoalThree} for computational efficiency must address several cases.  
+\begin{description}
+    
+
+\item[Cheap Function Values]  If $\$_d(f)$ is small, which is common, then we want algorithms with $p \approx 1$ so that the cost of manipulating the function data does not dominate.  Probabilistic methods that model $f$ as a Gaussian process require matrix manipulations that ordinarily cost $\Order( n^{*3})$.  Our research will find ways to avoid such costs.
+
+    \item[Expensive Function Values] In some practical  problems, such as constructing surrogates for expensive computer simulations,  $\$_d(f)$ is huge.  Then $n^*$ must be moderate, say several hundred, for practical reasons, and cost of data manipulation is unimportant.
+    
+    \item[Infinite $d$] When integrating functions of stochastic processes discretized by $d$ time steps, it is common to have $\$_d(f) = \Order(d)$ and to want the limit of the integral as $d \to \infty$.  Computational efficiency can be achieved by multi-level Monte Carlo methods and the multivariate domain 
+\end{description}
+
+\subsection{Availability and Practicality} \label{sec:AvailPract}
+
+Practitioners rely on languages and software packages such as MATLAB \cite{MAT9.5}, Chebfun \cite{TrefEtal17a}, the NAG library \citep{NAG23}, the Python scientific library SciPy \cite{SCIPY}, the Gnu Scientific Library (GSL) \cite{GSL}, R \cite{R3.5.1_2018}, and Julia \cite{Julia1.0}. Whether they are commercial or open source, the expectation is that they offer state-of-the-art algorithms that have been carefully coded and tested.  
+
+On the other hand, research code---which often provides significant advances over what is available in the above-mentioned software packages---is often difficult to access or use because scholars have not invested the time to make it so.  In line with calls for reproducible research \cite{BaiBor12a, Pen11, Sto14a} and better scientific software \cite{BSS18}, this project will make its research code accessible, easy to use, and well tested.  We will continue the development of our Guaranteed Automatic Integration Library \hypertarget{GAILlink}{(GAIL)} \cite{ChoEtal17b}.  Moreover, we will combine our work on quasi-Monte Carlo software with that of other research groups in a Quasi-Monte Carlo Community Software \hypertarget{QMCSoftlink}{(QMCSoft)}.  This will fulfill Goal \ref{GoalFour}.
+
+Theory must not only be correct, but it should be relevant to practical applications.  Making our software accessible and easy to use will facilitate others using it in practice.  We will also test our software on standard test cases, such as \cite{VirLib17a}.  This earch groups in a Quasi-Monte Carlo Community Software \hypertarget{QMCSoftlink}{(QMCSoft)}.  This will fulfill Goal \ref{GoalFive}.
+
+\subsection{Remainder of This Project Description}
+
+The ideas described in generality above will be fleshed out in detail in the coming sections.  The next section describes results of a recently completed NSF grant.  Sect.\ \ref{secProposed} describes the intellectual merit of our project.  Sect.\ \ref{SectBroad} describes the broader impact of our project.  To avoid the tedium of technical detail, we give general explanations in many cases. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results of Previous NSF-Funded Research,
 NSF-DMS-1522687\except{toc}{, \\ \emph{Stable, Efficient, Adaptive Algorithms for 
 Approximation and 
 Integration}, \\
 \$270,000, August 2015 -- July 2018}} \label{SectPrevious}
 
-Gregory E.\ Fasshauer (GEF, co-PI) and Fred J.\ Hickernell (PI) have led this project.  In the summer 
-of 
-2016, Fasshauer left Illinois Tech and has participated since then as a sub-contractor.  
-Sou-Cheng Choi (SCC) has contributed as a senior personnel.  Other major contributors 
-have been the PI's research students Yuhan Ding (YD, PhD 2015), Lan Jiang (LJ, PhD 2016), 
+Gregory E.\ Fasshauer (GEF, co-PI) and Fred J.\ Hickernell (PI) led this project.  In the summer 
+of 2016, GEF left Illinois Tech and participated as a sub-contractor.  
+Sou-Cheng Choi (SCTC), co-PI on this proposal, contributed as a senior personnel.  Other major contributors were FJH's research students Yuhan Ding (YD, PhD 2015), Lan Jiang (LJ, PhD 2016), 
 Llu\'is Antoni Jim\'enez Rugama (LlAJR, PhD 2016), Da Li (DL, MS 2016), Jagadees Rathinavel (JR, 
-PhD student)
-Xin Tong (XT, MS 2014, PhD student, University of Illinois at Chicago), Kan Zhang (KZ, PhD 
-student), Yizhi Zhang (YZ, PhD student), and Xuan Zhou (XZ, PhD 2015).  Articles, theses,  
+PhD student), Xin Tong (XT, MS 2014, PhD student, University of Illinois at Chicago), Kan Zhang (KZ, PhD 
+student), Yizhi Zhang (YZ, PhD 2018), and Xuan Zhou (XZ, PhD 2015).  Articles, theses,  
 software, and preprints supported in 
 part by this 
 grant 
@@ -948,11 +547,15 @@ include
 	ChoEtal17a,
 	ChoEtal17b,
 	Din15a, 
+	DinHic20a,
 	GilEtal16a,
 	Hic17a,
+	HicJag18b,
 	HicJim16a,
 	HicEtal18a,
 	HicEtal17a,
+	HicKriWoz19a,
+	RatHic19a,
 	GilJim16b,
 	JimHic16a,
 	JohFasHic18a,
@@ -965,55 +568,31 @@ include
 	MisEtal19a,
 	rashidinia_stable_2016,
 	rashidinia_stable_2018,
+	Zha18a,
 	Zha17a,
 	Zho15a,
 	ZhoHic15a}.
 
 
+%%======================
+
+%%======================
+
+
 \subsection{Intellectual Merit from Previous NSF Funding}
 \label{previousmeritsubsec}
 
-\subsubsection{Local Adaption for Univariate Problems} \label{localadpatsec}
-The PI, SC, YD, and XT developed 
-locally adaptive 
-algorithms for univariate function 
-approximation and 
-global optimization \cite{ChoEtal17a,Din15a}, i.e., cases $\APP$ and $\OPT$ in 
-\eqref{probs} for $\Omega = [a,b]$.  
-The error of the \emph{linear spline}, $A_n$, using the 
-nodes $a = x_0 < x_1 < \cdots < x_n = b$,  in approximating a function is 
-\begin{equation} \label{linsplineerror}
-\norm[{\infty,[x_{i-1},x_i]}]{f - 
-	A_n(f)} \le \frac{(x_i-x_{i-1})^2\norm[\infty,{[x_{i-1},x_i]}]{f''}}{8} =: \oerr_n(f,[x_{i-1},x_i]),
-\end{equation}
-where $\norm[{\infty,[\alpha,\beta]}]{\cdot}$ denotes the sup-norm over the interval 
-$[\alpha,\beta]$.  The cone of reasonable functions, $\cc$, consists essentially of those 
-functions for 
-which the local supremum of $|f''|$ is bounded above by an inflated value of the local 
-\emph{infimum} 
-of $|f''|$ to the left or the right (see \cite{ChoEtal17a} for details):
+\subsubsection{Adaptive Algorithms for Univariate Problems} \label{localadpatsec}
+In \cite{HicEtal14b}---funded by a still earlier NSF grant---FJH, YD, YZ, and collaborators developed an adaptive algorithm for univariate integration, $\SOL(f) = \int_a^b f(x) \, \dif x$, based on the trapezoidal rule.  In his recent PhD thesis \cite{Zha18a}, YZ constructed an improved adaptive trapezoidal rule that succeeds for all integrands whose first derivatives have total variation not much greater than the total variation of their linear spline interpolant:
 \[
-\cc: = \left \{ f \in W^{2,\infty} : \norm[{\infty,[\alpha,\beta]}]{f''} \le \max\left(\fC(h_{-}) 
-\norm[-\infty,{[\beta-h_-,\alpha]}]{f''},\fC(h_{+})
-\norm[-\infty,{[\beta, \alpha+h_+]}]{f''}\right) \  \forall h_{\pm} \le \hcut \right\},
+\cc: = \left \{ f : \Var(f') \le \inflate(\size(\{x_i\}_{i=0}^n)) \Var(f'_{\textup{int},n}) \ \forall \size(\design) \le \hcut \right\}.
 \]
-where $\fC(\cdot)$ is the inflation factor in \eqref{conedef}, and $\norm[-\infty,{[\alpha, 
-\beta]}]{f''} = \inf_{\alpha \le x \le \beta} \abs{f''(x)}$.  Because one looks at the infimum of $|f''(x)|$ 
-on 
-both sides, 
-a reasonable function may have inflection points, but two inflection points may not be too 
-close together.  
+In this definition, the nodes need not be equally spaced, $\size(\cdot)$ denotes the maximum distance between adjacent nodes, $f_{\textup{int},n}$ denotes the linear spline based on the given nodes, and $\inflate(h) = \inflate(0) \hcut/(\hcut - h)$.  The adaptive algorithm, $\ALG$, constructed by YZ fits the model of Algorithm \ref{ConeAlg}, has  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order(\sqrt{\rho/\varepsilon})$ and is optimal.  
 
-For $f \in \cc$, there exists a data-based error bound 
-$\herr_n(f,[x_{i-1},x_i]) \ge \oerr_n(f,[x_{i-1},x_i])$ defined in terms of second order 
-difference 
-quotients on the 
-left and right sides of $[x_{i-1},x_i]$.  Each interval $[x_{i-1},x_i]$ is refined until  
-$\herr_n(f,[x_{i-1},x_i]) \le \varepsilon$.  The resulting linear spline, $\fA(f,\varepsilon)  = A_n(f)$, 
-satisfies 
-error 
-criterion \eqref{errorcrit} for the function approximation problem. Figure 
-\ref{localadaptfig} (left) displays an example of the function data required.  The function $f$ is 
+To obtain higher order convergence, YZ also constructed an adaptive Simpson's rule, this time where $\cc$ is the cone of functions for which $\Var(f''')$ is bounded by an inflation factor times the total variation of a piecewise cubic polynomial interpolant.  In this cases  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order([\rho/\varepsilon]^{1/4})$ and is optimal.  
+
+The algorithms developed by YZ are \emph{globally adaptive} in the sense that the sampling density is constant (equally spaced nodes).  However, for univariate problems \emph{locally adaptive} methods (unequally spaced nodes) may perform better.  FJH, SCTC, YD, and XT extended the globally adaptive algorithms in \cite{HicEtal14b} for univariate function approximation, $\SOL(f) = f$, and minimization, $\SOL(f) = \min_{a \le x \le b} f(x)$ to locally adaptive algorithms.  The cone of input functions, $f$ is defined such that $f''$ cannot change too drastically over a small interval.  Finite differences can then be used to bound $f''$ and locally bound the error of the linear spline in approximating a function or seeking its minimum. Figure 
+\ref{localadaptfig} displays an example of the function data required for function approximation and minimization.  The function $f$ is 
 sampled sparsely where $|f''(x)|$ is small.
 
 \begin{figure}[h]
@@ -1683,7 +1262,7 @@ also demonstrate how adaptive algorithms ought to be implemented, which we hope 
 inform those working on adaptive algorithms for other mathematical problems.  We will involve 
 students in porting \GAIL to other platforms, such as Python, R, and Julia.  We expect our 
 new algorithms to be incorporated into widely used numerical packages, as was done for our 
-algorithm in \cite{HonHic00a} by \Matlab \citep{MAT9.3} and NAG \citep{NAG23}.  We will continue 
+algorithm in \cite{HonHic00a} by \Matlab \citep{MAT9.5} and NAG \citep{NAG23}.  We will continue 
 to discuss with software developers about good practices for adaptive algorithms.
 
 \emph{New Applications of \QMC.}
@@ -1710,3 +1289,400 @@ inference.
 
 \bibliography{FJH23,FJHown23}}
 \end{document}
+
+
+
+\subsection{An Illustrative Example: Integration by the Trapezoidal Rule}  
+\label{TrapIllSect}
+We introduce some 
+key ideas in our proposed research via the problem of univariate integration.  Calculus 
+students are taught to approximate the definite integral by the trapezoidal rule 
+\cite[Sect.\ 7.2, (7.15)]{BraPet11a}:
+\begin{gather}
+\label{traprule}
+\int_0^1 f(x) \, \dif x \approx T_n(f):= \frac1{2n} \left[f(0) + 2f(1/n) + \cdots + 2f(1-1/n) + f(1) \right ], \\
+\label{traperrbd}
+\err_n(f) := \abs{\int_0^1 f(x) \, \dif x - T_n(f)}  \le \frac{\Var(f')}{8 n^2} =: \oerr_n(f),
+\end{gather}
+where the total variation of the first derivative is defined as 
+\begin{equation*}
+\Var(f') : = \sup \left \{\widehat{V}(f',\{t_i\}_{i=0}^n) := \sum_{i=2}^{n-1}  \abs{f'(t_i) - f'(t_{i-1})} \, \Big 
+\vert \, 
+\forall \text{ partitions }  \{t_i\}_{i=0}^n \text{ of } [0,1], \ \forall n \in \naturals \right \}.
+\end{equation*} 
+A partition of an interval is an ordered subset including both endpoints.
+The practitioner wants to know how large $n$ 
+must be to ensure that $\err_n(f)  \le \varepsilon$ for a prescribed 
+absolute error tolerance $\varepsilon$.  Ensuring that $\oerr_n(f) \le \varepsilon$ is sufficient, but 
+this requires an upper bound on $\Var(f')$, which is normally unavailable  unless $f$ has a simple 
+form.
+
+Numerical analysis texts  \cite[p.\ 223--224]{BurFai10}, \cite[p.\ 233]{CheKin12a}, 
+and  \cite[p.\ 270]{Sau12a} propose estimating the absolute error of $T_n(f)$ by 
+\begin{equation} \label{tradtraperrest}
+ \err_n(f) \approx  \abs{\frac{T_n(f) - T_{n/2}(f)}{3}} =: \herr_n(f).
+\end{equation}
+Although this $\herr_n(f)$ is valid in some cases, it is flawed.  This $\herr_n(f)$  fails for 
+spiky integrands whose 
+spikes fall  between the nodes as in Figure \ref{quadfailfig}(a).  Worse, this $\herr_n(f)$ can fail 
+for 
+integrands that are \emph{not spiky} if $T_n(f)$ is coincidentally (nearly) 
+the same as  $T_{n/2}(f)$ (see Figure \ref{quadfailfig}(b)).  Over 30 years ago, James 
+Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws of nearly all adaptive quadratures:
+\begin{quote}
+	While prepared to take the risk of being misled by chance alignment of zeros in the integrand 
+	function, or by narrow peaks which are ``missed,'' the user may wish to be reassured that for 
+	``reasonable'' integrand functions which do not have these characteristics all will be well. It is the 
+	purpose of the rest of this section to demonstrate by example that he cannot be reassured on this 
+	point. In fact the routine is likely to be unreliable in a significant proportion of the problems it faces 
+	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set 
+	of apparently reasonable problems this will happen.
+\end{quote}
+Figure \ref{quadfailfig}(b) depicts a reasonable integrand for which $\herr_n(f)$ in 
+\eqref{tradtraperrest} fails.  Figure 
+\ref{quadfailfig}(c) depicts a reasonable integrand for which the error estimate, $\herr_n(f)$, 
+used 
+by  
+MATLAB's adaptive quadrature 
+\texttt{integral} \cite{MAT9.5} fails.  
+
+\begin{figure}[h]
+	\begin{tabular}{>{\centering}m{0.31\textwidth}@{\quad}>{\centering}m{0.31\textwidth}@{\quad}>{\centering}m{0.3\textwidth}}
+		\includegraphics[width=0.3\textwidth]{ProgramsImages/SpikyFoolTrapezoidalcolor.eps} &
+		\includegraphics[width=0.3\textwidth]{ProgramsImages/FlukyFoolTrapezoidalcolor.eps} &
+		\includegraphics[width=0.3\textwidth]{ProgramsImages/FlukyFoolIntegralcolor.eps} 
+		\tabularnewline
+		(a) $\err_{100}(f) = 1 $ &
+		(b) $\err_{100}(f) =  1.4\text{E}{-4}$ &
+		(c) $\err_{150}(f) =  2.8\text{E}{-5}$
+		\end{tabular}
+	\caption{Integrands for which $\herr_n(f) = 0$ but 
+	$\err_n(f) \ne 0$. \label{quadfailfig}}
+\end{figure}
+
+Despite Lyness's gloomy portrayal of adaptive quadratures, the PI and his collaborators have 
+developed an adaptive trapezoidal algorithm that \emph{succeeds for all reasonable integrands}, 
+although 
+it 
+may fail for spiky integrands \cite{HicEtal14a,HicRazYun15a}. The key is a 
+data-based upper bound on $\Var(f')$.  
+
+Here we outline the key arguments from \cite{HicRazYun15a}.  Let 
+$\size(\{t_i\}_{i=0}^n) : = \max_{1 \le i \le n} t_i - t_{i-1}$ denote the partition width.  By 
+definition, $\Var(f')$ is bounded below by $\widehat{V}(f',\{t_i\}_{i=0}^n)$ for any partition. 
+Reasonable integrands are defined as those functions for which an inflated lower bound on  
+$\Var(f')$ provides an \emph{upper bound} on $\Var(f')$:
+\begin{multline} \label{conedef}
+\cc := \Bigl \{ f \in C^1[0,1]: \Var(f') \le \fC(\size(\{t_i\}_{i=0}^n)) \hV(f',\{t_i\}_{i=0}^n) \text{ for all }   n 
+\in \naturals \\
+ \text{and partitions } \{t_i\}_{i=0}^n \text{ with } 
+\size(\{t_i\}_{i=0}^n) < \hcut \Bigr \}, \qquad  \fC(h) := \frac{\fC_0 \hcut}{\hcut - h}, \quad \fC_0 
+> 1, \ 
+\ 0 < \hcut < 1.
+\end{multline}
+This set of reasonable integrands, $\cc$, is a \emph{cone} since $f \in \cc \implies cf \in \cc$ 
+for 
+any 
+constant $c$.  The 
+parameters $\hcut$ and $\fC_0$ determine how inclusive this 
+cone of reasonable functions is.  It is shown in \cite{HicRazYun15a} that $\Var(f')$ can rigorously be 
+bounded above by an 
+inflated variation of the derivative of the linear spline, which depends only on function values, not on 
+derivative values:
+\begin{subequations} \label{tVdef}
+\begin{gather} 
+\tV_n(f) 
+% & : = \sum_{i=1}^{n-1} \abs{ \frac{f((i+1)/n)-f(i/n)}{1/n} - \frac{f(i/n)-f((i-1)/n)}{1/n}}  \\& 
+:= n\sum_{i=1}^{n-1} \abs{f((i+1)/n)-2f(i/n)+f((i-1)/n)}, 
+\\ \Var(f') \le \fC(2/n) \tV_n(f),  \ \ 
+\forall 
+f \in \fC,  \ n > 2 /\hcut.
+\end{gather}
+\end{subequations}
+This provides a data-driven upper bound on the error  of the trapezoidal rule, namely,
+\begin{equation} \label{guartraperrest}
+\err_n(f) \le \oerr_n(f) \le \herr_n(f) := \frac{\fC(2/n) \tV_n(f)}{8n^2} \qquad 
+\forall 
+f \in \fC,  \ n > 2 \hcut.
+\end{equation}
+An adaptive quadrature, Algorithm \ref{Trapalg},  is constructed by increasing $n$ until 
+$\herr_n(f)$ does 
+not exceed the error tolerance, $\varepsilon$.
+
+\begin{algorithm}
+	\caption{Adaptive Trapezoidal Rule \label{Trapalg}} 
+	\begin{algorithmic}[1]
+		\REQUIRE a black-box function, $f$; an absolute error tolerance,
+		$\varepsilon>0$; the maximum partition width, $\hcut$; the constant $\fC_0 > 1$;  the 
+		maximum number of trapezoids, $n_{\max}$
+
+\ENSURE $\abs{\int_0^1 f(x) \dif x - \ct(f,\varepsilon)} \le \varepsilon$, provided $f \in \cc$
+
+\STATE $n \leftarrow \lfloor 1 /\hcut \rfloor + 1$
+
+\REPEAT
+
+\STATE $n \leftarrow 2n$
+
+\STATE Compute $\herr_n(f)$ according to \eqref{guartraperrest}
+
+\UNTIL  $\herr_n(f) \le \varepsilon$ or $n > n_{\max}$
+
+\STATE Compute $\ct(f,\varepsilon) = T_n(f)$ according to \eqref{traprule}.
+		
+\end{algorithmic}
+	\end{algorithm}
+
+
+\subsection{Key Ideas Illustrated by the Adaptive Trapezoidal Rule Algorithm 
+\ref{Trapalg}} 
+\label{subsect:trap}
+
+\begin{description}[leftmargin=2.5ex]
+	\item[Bound the error by bounding the semi-norm of $f$] Algorithm \ref{Trapalg} succeeds 
+	by 
+	\emph{bounding} 
+	$\Var(f')$---a key term in 
+	$\oerr_n(f)$ in \eqref{traperrbd}---for reasonable functions:
+	\begin{equation*}
+	\underbrace{\err_n(f)}_{\text{actual error}} \ \ \underbrace{\le}_{\text{all } f} \ \ 	
+	\underbrace{\oerr_n(f)}_{\text{theoretical  bound}} \ \ \underbrace{\le}_{f \in \cc} \ \ 
+	\underbrace{\herr_n(f)}_{\text{data-driven  bound}} .
+	\end{equation*}
+	Typical  adaptive quadrature 
+	algorithms 
+	remain 
+	flawed because they assume that the difference between two quadrature rules is indicative of the 
+	error of one of them as in \eqref{tradtraperrest}.  
+	
+	\item[Identify a cone, $\cc$, of reasonable functions] Our set of reasonable functions is a 
+	\emph{cone} 
+	defined precisely in \eqref{conedef}.  The widest spike must be wider than the minimum 
+	width, $\hcut$.  
+	The bound of $\Var(f')$ in terms of an inflated $ \hV(f',\{t_i\}_{i=0}^n)$ excludes functions with 
+	large
+	changes in $f'$ over small intervals.
+	
+	\item[$\cc$ is non-convex] A convex combination of two reasonable 
+	functions, $f_1$ and 
+	$f_2$, may produce 
+	a spiky function as illustrated below (the narrow width, not the height makes it a spike):
+	
+	\centerline{\includegraphics[width = 0.35\textwidth]{ProgramsImages/broadpk.png}
+	\includegraphics[width = 0.35\textwidth]{ProgramsImages/choppedpk.png}
+\includegraphics[width = 0.35\textwidth]{ProgramsImages/narrowpk.png}}
+
+\vspace{-4ex}
+  \noindent A non-convex cone of input functions, $\cc$, is key to an adaptive algorithm 
+  that outperforms non-adaptive algorithms.  For convex sets of input functions---such as 
+  balls---adaptive algorithms have no 
+  advantage under rather 
+  general conditions  \cite[Chap.\ 4, Corollary 5.2.1]{TraWasWoz88}.
+	
+
+	\item[Bound the computational cost of the algorithm] Let $\cost(\ct,f,\varepsilon)$ denote the 
+	computational cost or number of function values  required by 
+	Algorithm \ref{Trapalg} to obtain $\ct(f,\varepsilon)$ for $f \in \cc$.  It is shown that 
+	$\cost(\ct,f,\varepsilon) = \Order (\sqrt{\Var(f')/\varepsilon})$ in \cite{HicRazYun15a}.  
+	(Since $\Var(f')$ is unbounded for $f \in \cc$, we 
+	include it in the expression for the computational cost.)  The computational cost for Algorithm 
+	\ref{Trapalg} is asymptotically the same as that for a non-adaptive trapezoidal rule when 
+	$\Var(f')$ has a known 
+	upper bound.  For 
+	Algorithm \ref{Trapalg} an upper bound on $\Var(f')$ is \emph{not required}.
+	
+	\item[Show that the adaptive algorithm is optimal] The \emph{computational complexity} of this 
+	integration problem is the computational cost of the best possible algorithm that is based on 
+	function values only,  
+	\[
+	\comp(v,\varepsilon)  := \inf_ {\ct'} \ \sup\{\cost(\ct',f,\varepsilon) : f \in \cc, \Var(f') \le v \} .
+	\]
+	It is shown in \cite{HicRazYun15a} that $\comp(v,\varepsilon) = \Order 
+	(\sqrt{v/\varepsilon})$ by constructing fooling functions that look like zero to the algorithm, but 
+	whose 
+	integral is nonzero. Our algorithm is asymptotically optimal.
+	
+	\item[The definition of adaptive algorithm includes parameters] MATLAB's 
+	\texttt{integral} \cite{MAT9.5}
+	assumes an initial number of nodes and a maximum sample size.  
+	%Chebfun \cite{TrefEtal17a}, a numerical library that adaptively integrates functions via 
+	%Chebyshev polynomial approximations assumes default values for these parameters as well as 
+	%others.
+	These parameters are set to be reasonable for most situations, but may be modified if 
+	necessary.  The parameters  $\hcut = 0.02, \fC_0 = 
+	1.5$, and 
+	$n_{\max} = 10^7$ are meant to remain the same from problem to problem, but may be 
+	modified 
+	to 
+	enhance speed or increase robustness.
+	
+	\item[The adaptive algorithm is available]  Algorithm 1 and related adaptive algorithms 
+	developed 
+	by the PI and his collaborators have been published in the Guaranteed Automatic 
+	Integration 
+	Library (\hypertarget{GAILlink}{GAIL}) \cite{ChoEtal17b}.  We propose to further develop this 
+	library (Sect.\ 
+	\ref{BroaderTwoSec}).
+	
+	\item[An error bound exists even if  time is the limiting factor]  Specifying the number of 
+nodes rather than the error tolerance is accomplished by setting $n_{\max}$ to be this
+ number and $\varepsilon = 0$.  The error bound, $\herr_n(f)$, is not needed to 
+stop the algorithm but is available to inform the user how large the error might be.
+
+	\item[This algorithm is globally adaptive] The  quadrature algorithm 
+	described above adaptively determines $n$ based on function data, which we term \emph{global 
+	adaptivity}.  Algorithms that determine the pattern of the nodes---as well as their number---based 
+	on function data are termed \emph{locally adaptive}.  Sect.\ 
+	\ref{previousmeritsubsec} describes new locally adaptive algorithms.
+	
+	\item[Optimality is only for integrands with limited smoothness] This adaptive quadrature 
+	algorithm is 
+	optimal for the cone of integrands, $\cc$, however, it is 
+	sub-optimal for smoother integrands.  See Sect.\ \ref{SectUniProb} for proposed research on 
+	algorithms with
+	higher order convergence.
+	
+\end{description}
+
+Our proposed research addresses problems beyond just univariate integration.  The next 
+subsections provide the notation for these problems and outline our research goals.
+
+
+\subsection{Traditional Error Analysis} Let $\calf$ be a Banach space of input functions 
+defined on the domain $\cx$, let
+$\calg$ be a Banach space of possible 
+solutions, and let $S:\calf \to \calg$ be a solution operator.  Some examples of solution 
+operators for integration, function approximation, and optimization are
+\begin{equation} \label{probs}
+S = \INT: f \mapsto \int_{\Omega} f(\bx) \, \dif \bx, \qquad S = \APP:f \mapsto f, \qquad S = 
+\OPT :f \mapsto 
+\min_{\bx \in \Omega} f(\bx).
+% \\S: f \mapsto u, \text{ where } u'' + u = f(x), \quad u(0) = u(1) = 0.
+\end{equation}
+Let $\{A_n: 
+\calf \to \calg\}_{n \in \calI}$ be a sequence of algorithms.  Each $A_n$  samples the 
+input function, 
+$f$, at $n$ nodes
+(data sites) $\desn \subset \cx$, and produces an approximation to $S(f)$ based 
+on $\{(\bx_i,f(\bx_i))\}_{i=1}^n$.  Typically, $A_n(f) = \sum_{i=1}^n w_i f(\bx_i)$ for some 
+$\{w_i\}_{i=1}^n \subset \calg$.
+Here 
+$\calI$ is an index set of positive integers. 
+
+The error bounds  for $A_n$ commonly take the  form
+\begin{gather} \label{typicalerr}
+\err_n(f): = \norm[\calg]{S(f) - A_n(f)} \le \norm{A_n} \norm[\calf]{f} =: \oerr_n(f) \qquad \forall f \in 
+\calf, \ n \in 
+\calI, 
+\\ \text{where }\norm{A_n}  : = \sup_{0 \ne f \in \calf} \frac{\norm[\calg]{S(f) - A_n(f)}} 
+{\norm[\calf]{f}}.
+\end{gather} 
+It may be that $\norm[\calf]{f}$ is a 
+semi-norm rather than a norm as in  \eqref{traperrbd}.  The term $\norm{A_n}$
+represents the worst case error for functions in the unit ball in $\calf$ and is a quality measure for 
+the algorithm, including the
+choice of nodes.  In some cases 
+$\norm{A_n}$ has an explicit expression ($1/(8n^2)$ in \eqref{traperrbd}), but in other 
+cases one 
+can only derive an upper bound on $\norm{A_n}$ or the convergence rate of 
+$\norm{A_n}$. 
+
+\subsection{Adaptive Algorithms} From a practical standpoint, users would like an adaptive 
+algorithm, 
+$\fA$, which only requires as input a black box function subroutine, $f$, and an error tolerance, 
+$\varepsilon$, and which satisfies the error criterion
+\begin{equation} \label{errorcrit} \tag{CRIT}
+\norm[\calg]{S(f) - \fA(f,\varepsilon)} \le \varepsilon.
+\end{equation}
+In theory, one may define $\fA(f,\varepsilon) = A_n(f)$, where $n = \min \{ n' \in \calI : \norm{A_n} \le 
+\varepsilon / 
+\norm[\calf]{f}\}$.  But, even if $\norm{A_n}$ is known explicitly, $\norm[\calf]{f}$ is 
+typically 
+unknown and cannot be 
+bounded easily.  Thus, the error bound $\oerr_n(f)$ in \eqref{typicalerr} does not directly support an 
+adaptive algorithm.
+
+Adaptive algorithms require error bounds, $\herr_n(f)$, computed from function data, 
+$\{(\bx_i,f(\bx_i))\}_{i=1}^n$, and not from a priori knowledge of the (semi-)norm of the function.  
+Common adaptive algorithms are inadequate because there is no theory justifying
+$\oerr_n(f)  \le \herr_n(f)$.  MATLAB's \texttt{integral} bases its $\herr_n(f)$ on 
+the comparison of two Gaussian quadratures.  Chebfun truncates its Chebyshev polynomial 
+approximation to $f$ when the observed high order Chebyshev coefficients reach round-off 
+error, in spite of the possibility that even higher order coefficients could be significant.
+
+There is a family of adaptive algorithms with a theoretical foundation based on interval 
+arithmetic described in \cite{MoKeCl09} and \cite{Rum10a} and implemented in INTLAB 
+\cite{Rum99a}.  This approach requires the function subroutines to take \emph{interval} arguments 
+and return \emph{interval} outputs.  We do not pursue this approach because existing black-box 
+function subroutines normally do not meet these requirements.
+
+\subsection{What We Propose}
+The numerical algorithm we use everyday to compute $\cos(x)$ to our desired accuracy does 
+not require us to determine how many terms in the polynomial 
+approximation are required.  The computation is \emph{automatic}.  Furthermore, theory 
+underpins this algorithm.  We believe that the same should be possible for problems that are 
+somewhat more difficult than evaluating  functions of real variables, such as the problems in 
+\eqref{probs}.  
+
+As computing power grows, and is matched by the complexity of the simulations attempted, certain 
+fundamental problems, such as integration and function approximation should become 
+as effortless as computing $\cos(x)$.  If the user specifies the problem and the error tolerance, the 
+algorithm should be able to provide the correct answer.  Unfortunately, 
+that is not yet the case because our current adaptive integration and function approximation 
+algorithms do not have sound theoretical underpinnings.
+
+To bring us closer to our ideal, we propose the following research program:
+\begin{itemize}
+	\item Develop adaptive algorithms, $\fA$, which depend on the 
+	problem definition, the cone of reasonable functions, $\cc$, and the
+	function data, and which certainly satisfy error criterion \eqref{errorcrit} for all $f \in \cc$.  
+	
+	\item The adaptive algorithms may be based on familiar algorithms, $A_n$, with 
+	well-understood theoretical error bounds, $\oerr_n(\cdot)$.  
+	
+	\item The cones, $\cc$, will be defined in a way that facilitate data-driven error 
+	bounds, $\herr_n(\cdot)$, which satisfy $\oerr_n(f) \le \herr_n(f)$ for all $f\in \cc$.  A key 
+	challenge is to identify the right $\cc$ and $\herr_n(\cdot)$.  For any silly 
+	$\herr_n(\cdot)$, one could define $\cc = \{f \, \vert \, \oerr_n(f) 
+	\le \herr_n(f) \}$, but we insist that the definition of $\cc$ \emph{not} depend on specific data, 
+	such as those used to define $\herr_n(f)$.
+	
+	\item Then $\fA(f,\varepsilon) = A_n(f)$ will be defined by choosing $n$ such that $\herr_n(f) \le 
+	\varepsilon$.  This will ensure that \eqref{errorcrit} is satisfied for all $f \in \cc$.  
+	
+	\item Letting $\cost(\fA,f,\varepsilon)$ denote the computational cost of $\fA$, we will
+	determine $p$ such that 
+	$\cost(\fA,f,\varepsilon)  = \Order\bigl((\norm[\calf]{f}/\varepsilon)^p\bigr)$ as 
+	$\norm[\calf]{f}/\varepsilon 
+	\to 
+	\infty$.  
+	
+	\item Letting $\comp(v,\varepsilon)$ denote the computational complexity of the problem, i.e., 
+	the computational cost of the best algorithm that succeeds for all $f \in \cc$ with $\norm[\calf]{f} 
+	\le v$, we aim to demonstrate that 
+	our 
+	adaptive algorithms are asymptotically optimal, i.e., $\comp(v,\varepsilon) = \Order 
+	\bigl((v/\varepsilon)^p \bigr)$ for the same $p$ as above.  These kinds of results are common in 
+	information-based complexity \cite{TraWer98,TraWasWoz88}, but typically for input functions in 
+	a ball, not a cone.
+	
+	\item These adaptive algorithms, $\fA$, will be implemented in our freely-available \GAIL 
+	\cite{ChoEtal17b}.  Their 
+	effectiveness will be demonstrated on various practical problems such as those in \cite{VirLib17a} 
+	and those arising from collaborations.
+	
+	\item Academics, practitioners and students will be introduced to these 
+	new adaptive algorithms.  Students (high school through PhD) contributing to \GAIL will learn to 
+	collaboratively develop robust, tested, 
+	and documented numerical software that supports reproducible research.  This will support their 
+	future careers and strengthen our country's computational science capability.
+	
+\end{itemize}
+
+
+
+Our recent NSF-Funded research---summarized in the next section---has obtained some success in 
+the direction of our intended research.  The proposed research detailed 
+in Sect.\ \ref{secProposed} aims to significantly enlarge the family of adaptive numerical 
+algorithms that have both a theoretical basis and practical application.  The last section details are 
+efforts aimed at broader impact.
