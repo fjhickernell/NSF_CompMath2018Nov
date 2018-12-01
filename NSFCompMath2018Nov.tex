@@ -593,7 +593,7 @@ To obtain higher order convergence, YZ also constructed an adaptive Simpson's ru
 
 The algorithms developed by YZ are \emph{globally adaptive} in the sense that the sampling density is constant (equally spaced nodes).  However, for univariate problems \emph{locally adaptive} methods (unequally spaced nodes) may perform better.  FJH, SCTC, YD, and XT extended the globally adaptive algorithms in \cite{HicEtal14b} for univariate function approximation, $\SOL(f) = f$, and minimization, $\SOL(f) = \min_{a \le x \le b} f(x)$ to locally adaptive algorithms.  The cone of input functions, $f$ is defined such that $f''$ cannot change too drastically over a small interval.  Finite differences can then be used to bound $f''$ and locally bound the error of the linear spline in approximating a function or seeking its minimum. Figure 
 \ref{localadaptfig} displays an example of the function data required for function approximation and minimization.  The function $f$ is 
-sampled sparsely where $|f''(x)|$ is small.
+sampled sparsely where $|f''(x)|$ is small. For the function minimization problem, $f$ is also sampled sparsely when $f(x)$ is large compared to the observed minimum.
 
 \begin{figure}[h]
 	\centering
@@ -607,9 +607,8 @@ sampled sparsely where $|f''(x)|$ is small.
 \end{figure}
 
 
-For this locally adaptive approximation algorithm 
-$\cost(\fA,f,\varepsilon) = \Order\left(\sqrt{\norm[1/2]{f''}/\varepsilon} \right)$ \cite{ChoEtal17a}, 
-where 
+For locally adaptive function approximation algorithm 
+$\cost(\ALG,f,\varepsilon) = \Order\left(\sqrt{\norm[1/2]{f''}/\varepsilon} \right)$ \cite{ChoEtal17a}, where 
 $\norm[1/2]{\cdot}$, the $1/2$-quasinorm, is weaker than the sup-norm.  This is  
 asymptotically the same cost as for the best possible algorithm for this problem. In contrast, 
 our older globally adaptive function approximation algorithm in \cite{HicEtal14b} has a 
@@ -619,24 +618,11 @@ function inside $\cc$, the local adaption algorithm may require significantly le
 than a global adaption algorithm because $\norm[1/2]{f''}$ will be much smaller than 
 $\norm[\infty]{f''}$.
 
-Similar arguments to those above lead to a locally adaptive algorithm for the 
-optimization problem, $\OPT$ in \eqref{probs}.  In this case, those subintervals for which the 
-function is definitely greater than the minimum found so far need not be 
-refined further.  Figure 
-\ref{localadaptfig} (right) gives an example of the function data required.  The function is 
-sampled sparsely where either $|f''(x)|$ is small \emph{or} the $f(x)$ is large.
-
-YZ's PhD research is developing a locally 
-adaptive Simpson's rule for univariate integration.  It will have higher order accuracy than Algorithm 
-\ref{Trapalg} above.  
-
 \subsubsection[QMCsec]{Globally  Adaptive Quasi-Monte Carlo (QMC) 
 Cubature} \hypertarget{QMClink}{}
 \label{QMCsec}
-The PI, LlAJR, and DL 
-have 
-developed adaptive quasi-Monte Carlo algorithms for integration over the unit cube, $\Omega = 
-[0,1]^d$ \cite{HicJim16a,JimHic16a}.  For multidimensional integrals over different domains, a 
+The FJH, LlAJR, and DL have 
+developed adaptive quasi-Monte Carlo algorithms for $\SOL(f) = \int_{[0,1]^d} f(\bx) \, \dif \bx$  \cite{HicJim16a,JimHic16a}.  For multidimensional integrals over different domains, a 
 transformation of variables can 
 often change the domain to the unit cube.  \QMC algorithms  commonly 
 choose the 
@@ -644,7 +630,7 @@ sequence of nodes, $\{\bx_i\}_{i=1}^\infty$, to be an integration lattice node s
 sequence, especially the Sobol' sequence \cite{DicEtal14a}.  \QMC cubature is superior to 
 independent and identically distributed Monte Carlo (\hypertarget{IIDMClink}{IID MC}) cubature 
 because the nodes are more 
-evenly spread throughout the domain.   Fig.\ \ref{PtsFig} illustrates this fact.
+evenly spread throughout the domain.   Fig.\ \ref{PtsFig} illustrates this.
 
 \begin{figure}[h] % MATLAB Driver: PlotPoints.m
 	\centering
@@ -663,11 +649,8 @@ integrand \cite{DicEtal14a, DicPil10a, HicJim16a,JimHic16a, Nie92, SloJoe94}:
 \nonumber
 f(\bx) = \sum_{\bk \in \bbK} \hf(\bk) \phi_{\bk} (\bx),  \qquad \text{where } \hf(\bk) := \int_{[0,1]^d} 
 f(\bx) \, \overline{\phi}_{\bk}(\bx) \quad \forall \bk \in \bbK, \\
-\label{multiInt} \tag{M-INT} S(f): = \int_{[0,1]^d} f(\bx) \, \dif \bx, 
-\qquad A_n(f) = \frac 1n \sum_{i=1}^{n} f(\bx_i), \\
-\nonumber
-\err_n(f) := \abs{S(f) - A_n(f)} \le \sum_{\bk \in P^\perp_n \setminus\{\bzero\}} \abs{\hf(\bk)} = : 
-\oerr_n(f), \\
+\label{multiInt} \APP(f,n) = \frac 1n \sum_{i=1}^{n} f(\bx_i), \qquad
+\abs{\SOL(f) - \APP(f,n)} \le \sum_{\bk \in P^\perp_n \setminus\{\bzero\}} \abs{\hf(\bk)} \\
 \nonumber
 \text{Dual set: }P_n^\perp : = \{\bk \in \bbK \, \vert \, \phi_{\bk}(\bx_i) = \phi_{\bk}(\bx_1) \text{ for } 
 i=1, \ldots, n \}. \\[3ex]
@@ -681,13 +664,19 @@ exponentials}\\
 functions}
 \end{array}
 \end{gather}
-The theoretical error bound, $\oerr_n(f)$, arises because the basis, 
-$\{\phi_{\bk}\}_{\bk \in \bbK}$ is 
-chosen to \emph{match} the particular \QMC nodes.  As $n \to \infty$, the dual set, $P^\perp_n$, 
-loses 
-elements, and $\oerr_n(f) \to 0$.
 
-The PI and LlAJR in \cite{HicJim16a,JimHic16a} took $\oerr_n(f)$ as a starting point for their 
+FJH and LlAJR in \cite{HicJim16a,JimHic16a} defined a cone of reasonable integrands, $\cc$, 
+whose Fourier coefficients do not decay erratically, but need not decay monotonically.  This allowed them to derive a data-driven bound on the cubature error above in \eqref{multiInt} in terms of the discrete Fourier coefficients: 
+\begin{equation*}
+\ERR(\dataN,n) = \fC(n) \sum_{\kappa = n/(2n_1) + 1}^{n/n_1} \abs{\tf_n(\bk(\kappa))}, \qquad \text{where } \tf_n(\bk)  = \frac{1}n \sum_{i=1}^{n} f(\bx_i) \overline{\phi}_{\bk}(\bx_i).
+\end{equation*}
+Here $\fC(n)$ is an inflation factor and $\{\bk(\kappa)\}_{\kappa = 1}^\infty$ 
+denotes an ordering of the $d$-dimensional wavenumbers in the index set, $\bbK$.  The data driven error bound depends on the smallest ``moderate-sized'' wavenumbers because they are closes to the large wavenumbers, which contribute to the error, but not so close as to have the discrete Fourier coefficients contaminated by undue aliasing.  The integer $n_1$ is a power of $2$ used to define what is meant by ``moderate-sized'' wavenumbers.
+
+
+
+
+. took $\oerr_n(f)$ as a starting point for their 
 adaptive \QMC rules.   True Fourier 
 coefficients, $\hf(\bk)$ may be approximated 
 by discrete Fourier coefficients,
@@ -819,25 +808,24 @@ derivations.
 \subsection{Broader Impacts from Previous NSF Funding} \label{prevBIsect}
 
 \emph{Publications, Conference Participation, and Conference Organization.} This 
-project has resulted in a number of publications by the PI, GEF, students, and collaborators listed at 
+project has resulted in a number of publications by the FJH, GEF, SCTC, students, and collaborators listed at 
 the beginning of this section.  We have also spoken at a number of applied mathematics, statistics, 
 and computational science conferences and given colloquium/seminar talks to mathematics and 
-statistics departments.  Here are some highlights.  The PI, SCC, LJ, and LlAJR recently finished an 
-encyclopedia entry on adaptive Monte Carlo \cite{HicEtal18a}.  The PI co-organized the 
+statistics departments.  Here are some highlights.  The FJH, SCTC, LJ, and LlAJR published  an 
+encyclopedia entry on adaptive Monte Carlo \cite{HicEtal18a}.  FJH co-organized the 
 \href{http://cos.iit.edu/2016-spring-research-conference/}{2016 Spring Research 
-Conference}, a long-running annual industrial statistics conference.   The PI gave an invited tutorial 
+Conference}, a long-running annual industrial statistics conference.   FJH gave an invited tutorial 
 at the \href{http://mcqmc2016.stanford.edu}{Twelfth International 
 Conference on Monte Carlo and Quasi-Monte Carlo Methods in Scientific Computing (MCQMC 
 2016)} 
-\cite{Hic17a}, a biennial conference for which he also serves on the steering committee.  The PI 
-serves as a program leader for the Statistical and Applied Mathematical Sciences 
+\cite{Hic17a}, a biennial conference for which he also serves on the steering committee.  FJH 
+served as a program leader for the Statistical and Applied Mathematical Sciences 
 Institute (SAMSI) 2017--18 
 \href{https://www.samsi.info/programs-and-activities/year-long-research-programs/2017-18-program-quasi-monte-carlo-high-dimensional-sampling-methods-applied-mathematics-qmc/
 }{Program on Quasi-Monte Carlo and High-Dimensional Sampling Methods for Applied 
 	Mathematics (\hypertarget{SAMSIlink}{SAMSI-QMC})}.   He  gave an invited tutorial 
-	at the Opening Workshop, leads one of 
-	the working groups, and participates in two working groups.  The PI received the 2016 Joseph F.\ 
-	Traub 
+	at the Opening Workshop, and led one of 
+	the working groups.  FJH received the 2016 Joseph F.\ Traub 
 	Prize for Achievement in Information-Based Complexity.
 	
 	
