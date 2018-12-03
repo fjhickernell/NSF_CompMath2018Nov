@@ -1,0 +1,24 @@
+%%%%%%%%%%%
+Overview:
+%%%%%%%%%%%
+Multivariate integration and function approximation arise in applications including financial risk management, statistical physics, surrogate modeling of computer experiments, and uncertainty quantification.  For efficiency, algorithms are needed that adaptively determine the computational effort needed to meet the prescribed error tolerance.  Existing adaptive algorithms rely on heuristics and lack a theoretical foundation. Theoretically sound error bounds are inadequate for adaptive algorithms because they require unreasonable a priori information, such as the (semi-)norm of the input function. The proposed research will rectify this deficiency by deriving data-driven error bounds that are guaranteed to work on a cone of input functions.  These data-driven error bounds can then be used to construct theoretically sound adaptive algorithms.  These algorithms will be implemented in an open source software library.
+
+
+
+%%%%%%%%%%%
+Intellectual Merit:
+%%%%%%%%%%%
+The key idea is to identify and precisely define cones of input functions that are not too spiky.  These are functions for which what you do not see is not much worse than what you see in the course of sampling the function.  For such cones it is possible to construct data-driven error bounds that certainly hold.  Adaptive algorithms proceed by increasing the number of nodes used for integration or approximation until the data-driven error bounds do not exceed the error tolerance.  This project will construct several new adaptive algorithms following the above paradigm and building upon the previous work of the PIs.
+
+Multivariate Integration:  The fast, Bayesian cubature already developed to lattice sampling, will be applied to higher order digital net sampling and matching kernels.  By choosing nodes and kernels to match, the matrix operations required can be done quickly.  Existing quasi-Monte Carlo (QMC) multivariate integration algorithms will be extended to adaptive infinite-dimensional integration algorithms using multi-level or multivariate decomposition ideas.  
+
+Multivariate Function Approximation:  We will determine general linear problems defined on cones of input functions are tractable.  We will study whether the fast, Bayesian framework can be employed for function approximation as well as cubature.  In some situations function values are the result of simulations that may take hours or days to run.  Limited by the practical constraint where the number of function values is proportional to the number of input variables, new algorithms will be constructed that adaptively identify important inputs through an initial screening sample, and then sample more strategically.
+
+Univariate: Previously constructed low-order, adaptive univariate integration and optimization algorithms will be upgraded to high-order adaptive algorithms.
+
+
+
+%%%%%%%%%%%
+Broader Impacts:
+%%%%%%%%%%%
+The new algorithms developed will be published in a variety of journals, and they will be implemented in the freely available Guaranteed Automatic Integration Library (GAIL), which has a five year history and is in ongoing development.  Our software development efforts will be combined with those of other quasi-Monte Carlo research groups to form a community quasi-Monte Carlo software library, QMCSoft.  The effectiveness of our algorithms will be demonstrated on standard test functions and through collaborations with practitioners.  High school through PhD students will be mentored in conducting research with a sound theoretical foundation and practical application.  They will join the dozens who have already contributed to GAIL, in the process learning good practice for developing robust, user-friendly, and documented numerical software that supports reproducible research. Students will continue to use our software in the classroom for assignments and projects.  
