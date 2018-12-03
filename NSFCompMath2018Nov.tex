@@ -737,6 +737,20 @@ involving the Gram matrix $\mC = \bigl(C(\bx_i,\bx_j)\bigr)_{i,j=1}^n$, which is
 $\Order(n^3)$.  Attempts to overcome this cost include \cite{AniCheSte16a, ParEtal17a}.  FJH and JR chose shift-invariant covariance kernels, which matched the lattice nodes used for sampling the integrand \cite{RatHic19a}. This yields Gram matrices $\mC$ for which the necessary vector-matrix operations can be accomplished by fast transforms with computational cost $\Order(n 
 \log(n))$, making Bayesian cubature practical.  %We also found a way to avoid the round-off error that often plagues these Gaussian process methods for large $n$.
 
+To exhibit the effectiveness of our adaptive cubatures, the following table shows their performance approximating the integral corresponding to the price of Asian arithemetic mean call option where the price is $\$13.12$.  The cubatures were run under different scramblings of the nodes.
+\[
+\begin{array}{cccccr@{.}l}
+    \text{Error} & & \text{Median} & & \text{Worst }10\% & \multicolumn{2}{c}{\text{Worst }10\%}\\
+    \text{Tolerance} & \text{Method} & \text{Error} & \text{Success} & n & \multicolumn{2}{c}{\text{Time (sec)}} \\
+    \toprule
+     1\text{E}-2& \text{IID Monte Carlo \cite{HicEtal14a}} & 2\text{E}-3 & 100\% & 6.1\text{E}7 & 33\\
+     1\text{E}-2&  \text{Lattice Nodes \cite{JimHic16a}} & 1\text{E}-3 & 100\% & 1.6\text{E}4 & 0&041\\
+     1\text{E}-2& \text{Sobol' Nodes \cite{HicJim16a}} & 1\text{E}-3 & 100\% & 1.6\text{E}4 & 0&040\\
+     1\text{E}-2&  \text{Sobol' Nodes w/ Control Variates \cite{HicEtal18a}} & 2\text{E}-3 & 100\% & 4.1\text{E}3 & 0&019\\
+     1\text{E}-2& \text{Bayesian w/ Lattice Nodes \cite{RatHic19a}} & 2\text{E}-3 & 99\% & 1.6\text{E}4 & 0&051\\
+\end{array}
+\]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Multivariate Function Approximation} \label{sec:PrevFunAppx}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -816,17 +830,10 @@ competition. %In 2018, FJH was appointed Vice Provost for Research.
 
 
 
-%%======================
-
-%%======================
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Intellectual Merit of the Proposed Research} \label{sec:Proposed}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -932,115 +939,33 @@ s_{k} = \text{smoothness degree}
 \end{cases}
 \]
 
-As proof of concept of this approach, we used a pilot sample of size $\Order(d)$ that involved exploring each coordinate direction, inferring the coordinate weights and the smoothness weights, and then following the procedure of Algorithm \ref{ConeAlg}.  Instead of assuming that we knew the Fourier coefficients, we approximated them by polynomial interpolation.  We chose a polynomial basis for which $\norm[\infty]{\phi_k} = 1$, so that $\norm[\infty]{f - \ALG(f,\varepsilon)} \le \norm[\calg]{f - \ALG(f,\varepsilon)}$.  We tried this procedure on a test function of \cite{ChenSan10a} from \cite{VirLib17a}.  The results are in Fig.\ \ref{ChengSanFig}
+As proof of concept of this approach, we used a pilot sample of size $\Order(d)$ that involved exploring each coordinate direction, inferring the coordinate weights and the smoothness weights, and then following the procedure of Algorithm \ref{ConeAlg}.  Instead of assuming that we knew the Fourier coefficients, we approximated them by polynomial interpolation.  We chose a polynomial basis for which $\norm[\infty]{\phi_k} = 1$, so that $\norm[\infty]{f - \ALG(f,\varepsilon)} \le \norm[\calg]{f - \ALG(f,\varepsilon)}$.  We tried this procedure on a test function of \cite{ChenSan10a} from \cite{VirLib17a}.  The results are in Fig.\ \ref{fig:ChengSand}.
 
 \begin{figure}
     \centering
-    \includegraphics[height = 10ex]{}
+    \includegraphics[height = 5cm]{ProgramsImages/sim_eval_results_chsan10_d6_sflg1ErrN.eps}
     \caption{Pilot function approximation algorithm for $\varepsilon$ ranging from $0.001$ to $0.1$}
-    \label{fig:my_label}
+    \label{fig:ChengSand}
 \end{figure}
 
-The previous two subsections have considered the situation where the time cost of a function value, 
-$f(\bx)$, is comparable to the cost of a floating point operation, or at worst, the cost of $d$ floating 
-point 
-operations, where $d$ is the dimension.  In this section we consider problems where the time cost 
-of a function value is more expensive than the cost of $n^p$ floating point operations for any 
-practical $p$.  A climate model may take hours or days to complete one run.  A simulation of the 
-future performance of a financial portfolio may take hours.  The outputs from simulations like these 
-depend on parameters, $\bx \in \reals^d$, whose values are uncertain or whose effect 
-on the output, $f(\bx)$ one needs to understand.
-
-We want to know under what situations one can integrate or approximate a function using only
-$\Order(d)$ function values, because this is the minimum number required to understand how each 
-scalar input affects the output.  Furthermore, we want to develop adaptive algorithms for function 
-approximations.  These surrogate models will facilitate cheap ``what-if'' explorations. 
-
-The three-volume series of monographs \cite{NovWoz08a,NovWoz10a,NovWoz12a} summarizes a 
-huge body of work on the \emph{tractability} of integration and function approximation 
-problems, essentially, under what conditions the computational cost of satisfying \eqref{errorcrit} is 
-$\Order(d^q \varepsilon^{-p})$ as $d \to \infty$.  We want $q=1$.  FJH has contributed to this 
-literature 
-\cite{FasHicWoz12b,HicSloWas03a,HicSloWas03b,HicSloWas03c,HicSloWas03e,HicWasWoz06a,HicWoz00b,WanHic00b,YueHic04a,YueHic05a,ZhoHic15a}.
-  It is 
-common to consider weighted tensor product 
-spaces of input functions, such as the following Hilbert space with the decomposition notation 
-adopted 
-in Sect.\ \ref{SectMultiProb}:
-\begin{equation*}
-\calf := \left\{ f : [0,1]^d \to \reals \, \Big \vert \norm[\calf]{f}^2 := \!\!\!\sum_{\fu \subseteq \{1, 
-\ldots, d\}} 
-\frac{1}{\gamma_{\fu}^2}\int_{[0,1]^d}\abs{\frac{\partial^{\abs{\fu}}f_{\fu}}{\partial \bx_\fu}(\bx_u)}^2 
-\,  
-\dif \bx
-\right\}.
-\end{equation*}
-The coordinate weights, $\bigl(\gamma_{\fu} \bigr)_{\fu \subseteq \{1, \ldots, d\}}$, indicate the 
-importance of the subsets of coordinate indices.  The smaller $\gamma_{\fu}$ is, the less influential 
-$f_\fu(\bx)$ is assumed to be on $f(\bx)$.  In other words, for $f$ with moderate sized norm, 
-$f_\fu$ 
-must be small if $\gamma_{\fu}$ is small. The literature cited above provides necessary and 
-sufficient conditions 
-guaranteeing that integration and function approximation are tractable for weighted spaces like the 
-one above.  For product weights, $\gamma_{\fu} = \prod_{r \in \fu} \gamma_r$, tractability is 
-guaranteed  
-if $\gamma_{r} \to 0$ quickly enough as $r \to \infty$.  Algorithms can be constructed whose 
-computational cost depend reasonably on dimension.
-
-For some applications one knows how to order the coordinates in roughly order of decreasing 
-importance, but for the applications we have in mind, such an ordering does not exist.  It must be 
-discovered by evaluating the function.  Only then, can the 
-tractability literature can be applied only after an initial probe of the function indicates 
-which coordinates are more important.
-
-Two of the \SAMSIQMC working groups that FJH belongs to are exploring how to
-place an initial set 
-of nodes evenly to uncover the important coordinate directions of $f$, followed by node 
-placement that favors the important 
-coordinate directions to approximate $f$ well.  We expect the existing literature plus the new ideas 
-arising from the working groups will set us on a path to solving this problem.
+While this preliminary study is encouraging, there is much still that we need to do.  We need to establish theoretically for which cones of functions, we can infer the coordinate and smoothness weights using a pilot sample of function values and meet the error tolerance with a sample size approximately $\Order(d)$.  In this kind of problem, we are not concerned about the cost of polynomial interpolation because this method is intended for problems where the cost of data acquisition dominates.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Higher Order Adaptive Algorithms for Univariate Problems}\label{SectUniProb}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\emph{A Theoretically Justified Alternative to \MATLAB's 
-\textup{\texttt{integral.m}}.} 
-\MATLAB's premier adaptive quadrature algorithm is based on composite high order Gaussian 
-quadrature rules, so it converges much faster than our adaptive trapezoidal rule (Algorithm 
-\ref{Trapalg}). However, as noted in Sect.\ \ref{TrapIllSect} and illustrated in Fig.\ 
-\ref{quadfailfig}(c), 
-\texttt{integral.m} can fail even for reasonable integrands, whereas our Algorithm 
-\ref{Trapalg} will always succeed for reasonable integrands. The adaptive quadrature algorithms in 
-the other popular scientific libraries, 
-such as \NAG, \GSL, and SciPy, have the same defect as \MATLAB's \texttt{integral.m}.  
+Although the primary focus of this research is on algorithms for multivariate problems, we will devote some effort to better algorithms for univariate problems.  Now that YZ has established an adaptive Simpson's rule with a theoretically justified stopping criterion, we are better prepared to derive a theoretically justified stopping criterion for \MATLAB's 
+\texttt{integral.m}, which will allow it to succeed for fluky functions like the one depicted in Fig.\ \ref{quadfailfig}b).  Instead of comparing two different quadratures that share the same nodes, we will approximate the norm of the derivative that controls the error of the Gauss quadrature.
 
-YZ is already working on a locally adaptive Simpson's rule, following the ideas in Sect.\ 
-\ref{localadpatsec}.  Our next step will be a 
-locally adaptive high order algorithm that is competitive with \MATLAB's \texttt{integral.m} but that 
-has 
-rigorous data-driven error bounds that will make it succeed for all reasonable 
-integrands, i.e., all functions in a cone, $\cc$, to be defined.  Our goal is to provide replacement for 
-\MATLAB's \texttt{integral.m} and similar algorithms.  
+\Chebfun is popular, but it too is lacking a rigorous foundation.  We will define a cone of functions
+$\cc$, for which \Chebfun must give the correct answer.  This will be done in a similar manner as for \QMC quadrature in Sect.\ \ref{sec:QMC}.  The cone $\cc$ will consist of functions 
+whose Chebyshev series does not decay erratically for terms with polynomial degree greater than 
+some minimum value.  Spiky functions will be excluded from $\cc$.
 
-Rather than use Gauss quadrature rules, we will likely use composite Clenshaw-Curtis quadrature, 
-which is based on integrating a Chebyshev polynomial approximation to the integrand on each 
-subinterval 
-$[\alpha, \beta]$ of the integration interval $[a,b]$.  
-Trefethen \cite{Tre08a} has pointed out that Clenshaw-Curtis quadrature is competitive with Gauss 
-quadrature.  Starting with the theoretical error bounds for Clenshaw-Curtis quadrature 
-\cite{BraPet11a}, we will develop a data-driven upper bound on the roughness of the 
-function, 
-analogous to how $\fC(2/n)\tV_n(f)$ provides  an upper bound on $\Var(f')$ in \eqref{tVdef} for 
-reasonable functions.  However, rather than developing a global bound, we will develop local bounds 
-as was done in \cite{ChoEtal17a}.  This will then lead to a data-driven quadrature error bounds, 
-$\herr_n(f,[\alpha,\beta])$, that 
-can be used to adaptively determine the sample size needed to satisfy the error criteria 
-\eqref{errorcrit} or \eqref{generrorcrit}.  We will also provide an upper bound on the computational 
-cost of our new algorithm and a lower bound on the computational complexity of the problem.
+\MATLAB's \texttt{fminbnd} is a local optimizer, whereas our algorithm described in Sect.\ \ref{sec:localadpat} is a guaranteed global optimizer, and thus a viable alternative.  We would like to improve it to .  Thus, our aglroHowever, our algorithm is not as high order as
 
 \emph{Locally Adaptive Optimization and Function Approximation.}
-We will use a similar line of argument to that in Sect.\ 
+We will use a similar line of argument to that in Sect.\ sec:localadpat}
 \ref{localadpatsec} to develop a locally adaptive 
 optimization algorithm of higher order convergence than the one we have constructed already.  Our 
 earlier 
@@ -1049,32 +974,6 @@ quadratic approximations.  Again computational cost of the algorithm and computa
 of the problem will be addressed.  We emphasize that while being locally adaptive, our algorithm 
 finds the 
 \emph{global} optimum.
-
-We will investigate the possibility of an adaptive function approximation algorithm with higher order 
-convergence than that  in 
-\cite{ChoEtal17a}, again based on piecewise approximation.  However, this problem is complicated 
-by the typical requirement that the 
-approximation have continuous derivatives to as high an order as possible.  Such a requirement does 
-not arise with integration and 
-optimization.  A locally adaptive cubic spline approximation with theoretical justification may be 
-possible.
-
-\emph{\Chebfun.}
-\Chebfun \cite{TrefEtal17a} is an elegant, popular software library that approximates functions by 
-Chebyshev polynomials of 
-sufficiently high degree.  These polynomials can then be used for integration, optimization, 
-root-finding, and other numerical computations.  \Chebfun is mainly a globally adaptive algorithm in 
-that the node pattern is fixed, but the number of nodes, which corresponds to 
-the the degree of the polynomial is chosen adaptively.  Although \Chebfun claims to perform 
-computations 
-to nearly machine precision, there are no theoretical guarantees.  
-
-We will provide a theoretical basis for \Chebfun by defining a cone of reasonable functions, 
-$\cc$, for which \Chebfun must give the correct answer.  This will be done in a similar manner as for 
-\QMC quadrature in Sect.\ \ref{QMCsec}.  The cone $\cc$ will consist of functions 
-whose Chebyshev series does not decay erratically for terms with polynomial degree greater than 
-some minimum value.  Functions lying outside this cone, $\cc$, will be spiky functions.   Our 
-theoretical foundation for \Chebfun will explain why it may or may not succeed as claimed.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Broader Impacts of the Proposed Research}\label{SectBroad}
