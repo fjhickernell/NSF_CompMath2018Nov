@@ -39,6 +39,13 @@
 \newcommand{\QMC}{\hyperlink{QMClink}{QMC}\xspace}
 \newcommand{\IIDMC}{\hyperlink{IIDMClink}{IID MC}\xspace}
 \newcommand{\SAMSIQMC}{\hyperlink{SAMSIlink}{SAMSI-QMC}\xspace}
+\newcommand{\SciPy}{\hyperlink{SciPylink}{SciPy}\xspace}
+\newcommand{\GSL}{\hyperlink{GSLlink}{GSL}\xspace}
+\newcommand{\NAG}{\hyperlink{NAGlink}{NAG}\xspace}
+\newcommand{\MATLAB}{\hyperlink{MATLABlink}{MATLAB}\xspace}
+\newcommand{\Chebfun}{\hyperlink{Chebfunlink}{Chebfun}\xspace}
+\newcommand{\Rlang}{\hyperlink{Rlink}{R}\xspace}
+\newcommand{\Julia}{\hyperlink{Julialink}{Julia}\xspace}
 
 \textwidth6.4in
 \setlength{\oddsidemargin}{0in}
@@ -49,6 +56,7 @@
 
 \providecommand{\FJHickernell}{Hickernell}
 \newcommand{\hf}{\widehat{f}}
+\newcommand{\hg}{\widehat{g}}
 \newcommand{\hI}{\hat{I}}
 \newcommand{\hatf}{\hat{f}}
 \newcommand{\hatg}{\hat{g}}
@@ -117,7 +125,7 @@
 \DeclareMathOperator{\err}{err}
 \DeclareMathOperator{\oerr}{\overline{\err}}
 \DeclareMathOperator{\herr}{\widehat{\err}}
-\DeclareMathOperator{\Ans}{Ans}
+\DeclareMathOperator{\Ans}{ANS}
 
 \DeclareMathOperator{\Var}{Var}
 \DeclareMathOperator{\SOL}{SOL}
@@ -146,6 +154,7 @@
 \newcommand{\bx}{{\boldsymbol{x}}}
 \newcommand{\bX}{{\boldsymbol{X}}}
 \newcommand{\bh}{{\boldsymbol{h}}}
+\newcommand{\bj}{{\boldsymbol{j}}}
 \newcommand{\bk}{{\boldsymbol{k}}}
 \newcommand{\bg}{{\boldsymbol{g}}}
 \newcommand{\bn}{{\boldsymbol{n}}}
@@ -186,6 +195,7 @@
 \newcommand{\calhk}{\calh_d(K)}
 \newcommand{\calg}{{\mathcal{G}}}
 \newcommand{\calgd}{{\calg_d}}
+\newcommand{\caln}{{\mathcal{N}}}
 \newcommand{\cL}{\mathcal{L}}
 \newcommand{\cP}{\mathcal{P}}
 \newcommand{\cT}{\mathcal{T}}
@@ -228,7 +238,7 @@
 \newcommand{\hmu}{\hat{\mu}}
 \newcommand{\hsigma}{\hat{\sigma}}
 \newcommand{\tK}{\widetilde{K}}
-\newcommand{\Matlab}{{\sc Matlab}\xspace}
+%\newcommand{\Matlab}{{\sc Matlab}\xspace}
 \newcommand{\abstol}{\varepsilon_{\text{a}}}
 \newcommand{\reltol}{\varepsilon_{\text{r}}}
 
@@ -300,8 +310,11 @@
 
 \vspace{-6ex}
 
-\section{Scientific Context, Key Ideas,  and Timeliness of the Proposed Research}
-Integration and function approximation are fundamental to
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Scientific Context, Key Ideas, and Timeliness of the Proposed Research}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Integration and function approximation are key to
 solving practical problems in a variety of areas, including financial risk management \cite{Gla03}, 
 statistical physics~\cite{LanBin14}, 
 Bayesian inference~\cite{GelEtal13}, and uncertainty quantification~\cite{ForEtal09, Smi14a}.  As computational mathematicians, we should provide rigorously justified algorithms that meet the needs of practitioners.  They want algorithms that 
@@ -319,9 +332,13 @@ computational effort required to meet their error criterion;
 \end{enumerate}
 We, the PIs, Choi (SCTC) and Hickernell (FJH), will construct algorithms that meet those goals.
 
-Some research on multivariate integration and function approximation focuses on establishing a solid theory and neglects to test whether the theory is relevant to applications.  Other research focuses on constructing algorithms that work well in practice, even if they are based on heuristics rather than rigorous theory.  We propose to provide sound theory and that is relevant to practice.  What we may sacrifice initially is tackling more difficult mathematical problems.  We focus on  relatively simpler settings where Goals 1--5 can be attained.
+Some research on multivariate integration and function approximation focuses on a solid theory and ignores whether it is relevant to applications.  Other research focuses on constructing practical algorithms, even if they are based on heuristics.  We propose to provide sound theory and that is relevant to practice.  What we may sacrifice initially is tackling more difficult mathematical problems.  We focus on relatively simpler settings where Goals 1--5 can be attained.
 
-\subsection{Problems to be Solved} \label{sec:Problems} The mathematical problems to solve take the form 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Problems to be Solved} \label{sec:Problems}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The mathematical problems to solve take the form 
 \begin{subequations} \label{problem}
 \begin{align}
     \calf & = \text{a Banach space of inputs}, \qquad 
@@ -332,28 +349,31 @@ Some research on multivariate integration and function approximation focuses on 
     \qquad \text{or function approximation } \SOL(f) = f.}
 \end{align}
 \end{subequations}
-There exist approximate solutions requiring $n$ function values at well-chosen node sets, $\design$, which take the form
+There often already exist approximate solutions requiring $n$ function values at well-chosen node sets, $\design$, which take the form
 \begin{equation}
     \APP: \calf \times \naturals_0 \to \calg = \text{fixed sample size approximation}, \quad \APP(f,n) = \sum_{i=1}^n f(\bx_i) g_i, \ \ g_i \in \calg.
 \end{equation}
-For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gaussian quadrature rules.  For function approximation, the $g_i$ are cardinal functions that arise from a (piecwise) polymomial or kriging approximation. It is natural to consider linear approximations since our solution operator is linear.  We define $\APP(f,0) = 0$.
+For integration, the $g_i$ are real-valued weights, which are generally equal for (quasi\Hyphdash*)Monte Carlo methods but unequal for Newton-Cotes or Gauss quadratures or Bayesian cubatures.  For function approximation, the $g_i$ are cardinal functions that arise from a (piecwise) polymomial or kriging approximation. We define $\APP(f,0) = 0$.
 
-To meet Goal \ref{GoalOne} we need error bounds for our approximations, often taking the form
+To meet Goal \ref{GoalOne} we need error bounds, which often taking the form
 \begin{equation}  \tag{ERR-BD} \label{errorBd}
-    \norm[\calg]{\SOL(f) - \APP(f,n)} \le \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \, \norm[\calf]{f} \quad \forall f\in \calf, \ n \in \natzero.
+    \norm[\calg]{\SOL(f) - \APP(f,n)} \le \norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} \, \norm[\calf]{f} \quad \forall f\in \calf, \ n \in \natzero,
 \end{equation}
 where $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)}$ is the norm of the error operator.  Here, $\norm[\calf]{\cdot}$ is a (semi-)norm.  E.g., for the composite trapezoidal rule $\norm[\calf]{f}$ could be the total variation of $f'$, in which case $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)} = 1/[8 (n-1)^2]$ \cite[Sect.\ 7.2, (7.15)]{BraPet11a}.  Even if the norm of the error operator has an explicit expression or upper bound, $\norm[\calf]{f}$ is typically unknown a priori.  Therefore, error bound \eqref{errorBd} is insufficient to satisfy Goal \ref{GoalOne}. 
 
-\subsection{Adaptive Algorithms} \label{sec:AdapAlgo} Goal \ref{GoalOne} requires an algorithm of the form
-%\begin{subequations}
-\begin{gather}
-\nonumber
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Adaptive Algorithms} \label{sec:AdapAlgo}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Goal \ref{GoalOne} requires an algorithm of the form
+\begin{equation*}
     \ALG : \calf \times (0,\infty) \to \calg = \text{fixed tolerance algorithm},
-    \intertext{which satisfies}
-    \tag{ALG-CRIT} \label{AlgErr}
+\end{equation*}
+which satisfies
+\begin{equation}
+      \tag{ALG-CRIT} \label{AlgErr}
     \norm[\calg]{\SOL(f) - \ALG(f,\varepsilon)} \le \varepsilon \quad \text{(with high probability)} \qquad \forall f\in \calc, \ \varepsilon >0.
-\end{gather}
-%\end{varsubequations}
+\end{equation}
 Here $\calc$ is a well-chosen subset of $\calf$ for which $\ALG$ can be proven to succeed.  The user need only specify the error tolerance, $\varepsilon$, and is freed from having to choose the appropriate $n$.  The computational cost is determined by the accuracy requirement (see Sect.\ \ref{sec:CompEff}).  If the algorithm is random, we are willing to accept that it satisfies the error tolerance with high probability rather than in all cases.  
 
 Algorithms satisfying \eqref{AlgErr} use approximations satisfying \eqref{errorBd} combined with a \emph{stopping criterion} that adaptively determines the necessary sample size.  $\ALG$ requires a \emph{data-driven error bound}, which depends on the definition of $\calc$ and is defined in terms of the function data required by $\APP(f,n)$:
@@ -366,50 +386,60 @@ The stopping criterion is then
 \ALG(f,\varepsilon) = \APP(f,n^*) \quad \text{for } n^* = \min \left \{ n : \ErrN \le \varepsilon \right \}.
 \end{equation}
 %\end{subequations}
-The values of $n$ for which the error bound is evaluated are not necessarily all non-negative integers, but typically follow a sequence of integers, e.g., powers of two.
-
-While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required to construct a data-driven error bound that satisfies \eqref{dataErrBd} has been neglected. 
+The values of $n$ for which the error bound is evaluated is typically only some subset of non-negative integers, e.g., powers of two.  While there is a substantial literature on approximations satisfying \eqref{errorBd}, the work required to construct a data-driven error bound that satisfies \eqref{dataErrBd} has been neglected. 
+\iffalse
 Trustworthy algorithms already exist for situations where the possible inputs, $\calf$, are simply numbers, e.g., for 
 \begin{equation} \label{functionValues}
     \SOL = \sin,\ \cos, \ \exp, \ \log, \ \erf, \ \text{ the (inverse) Gaussian CDF, Bessel functions, etc.}
 \end{equation}
 However, for integration and function approximation, $\calf$ is a space of functions, for which we only have partial information---function values at a finite number of points.  Therefore, satisfying Goal \ref{GoalOne} is more difficult for these problems than it is for problems of the form \eqref{functionValues}.
+\fi
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Existing Adaptive Algorithms Typically Employ Heuristic Stopping Criteria} \label{sec:Heuristics}
-The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, optimization, and root-finding algorithms found in general purpose software.  Examples include MATLAB's \cite{MAT9.5} native \texttt{integral}, \texttt{fminbnd}, and \texttt{fzero} algorithms.  The Chebfun \cite{TrefEtal17a} MATLAB library adaptively approximates $f$ by Chebyshev polynomials and then overloads MATLAB's \texttt{sum}, \texttt{cumsum}, \texttt{min}, and \texttt{roots} functions to approximate definite integrals, indefinite integrals, minima, and zeros of $f$.  The  NAG library \citep{NAG23}, the Python scientific library SciPy \cite{SCIPY}, and the Gnu Scientific Library (GSL) \cite{GSL} have automatic quadrature and cubature. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-All of these algorithms, and others like them, fail to satisfy the error tolerance if the input function is sufficiently spiky.  Figure \ref{quadfailfig}a) depicts a spiky integrand that fools MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  Any algorithm relying on function values may be fooled by sufficiently spiky functions.  However, the algorithms mentioned above have no theory that specifies for which input functions these algorithms will succeed.
+The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, optimization, and root-finding algorithms found in general purpose software.  Examples include \hypertarget{MATLABlink}{MATLAB}'s \cite{MAT9.5} native \texttt{integral}, \texttt{fminbnd}, and \texttt{fzero} algorithms.  The \hypertarget{Chebfunlink}{Chebfun} \cite{TrefEtal17a} \MATLAB library adaptively approximates $f$ by Chebyshev polynomials and then overloads \MATLAB's \texttt{sum}, \texttt{cumsum}, \texttt{min}, and \texttt{roots} functions to approximate definite integrals, indefinite integrals, minima, and zeros of $f$.  The  Numerical Algorithms Group
+(\hypertarget{NAGlink}{NAG}) library \citep{NAG23}, the Python scientific library \hypertarget{SciPylink}{SciPy} \cite{SCIPY}, and the GNU Scientific Library (\hypertarget{GSLlink}{GSL}) \cite{GSL} have automatic quadrature and cubature. 
 
-A data-driven error bound, \eqref{dataErrBd}, which is needed for Goal 1, requires the set $\calc$ to exclude spiky functions.  This is why $\calc$ is a strict subset of the Banach space $\calf$.  Making $\calc$ more inclusive leads to more robust and more costly algorithms.
+All of these algorithms, and others like them, fail to satisfy the error tolerance if the input function is sufficiently spiky.  Figure \ref{quadfailfig}a) depicts a spiky integrand that fools \MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  Any algorithm relying on function values may be fooled by sufficiently spiky functions.  However, the algorithms mentioned above \emph{have no theory} that specifies the set of input functions, $\calc$, for which they succeed.
+
+A data-driven error bound, \eqref{dataErrBd}, which is needed for Goal 1, requires $\calc$ to exclude spiky functions.  This is why $\calc$ is a strict subset of the input space $\calf$.
 
 Spiky inputs are not the only source of failure for adaptive quadratures. 
-MATLAB's
-\texttt{integral} \cite{Sha08a, MAT9.5} is state-of-the-art.  It estimates the quadrature error based on the difference between two different Gauss quadratures using the same nodes. This is a flawed way of estimating error was criticized by 
+\MATLAB's
+\texttt{integral} \cite{Sha08a, MAT9.5} is state-of-the-art.  It estimates the quadrature error based on the difference between two different Gauss quadratures using the same nodes. This flawed way of estimating error was criticized by 
 Lyness \cite[p.\ 69]{Lyn83} over 30 years ago.  In fact, Lyness claims that automatic quadratures employing this common type of error estimate are ``\ldots likely to be unreliable in a significant proportion of the problems it faces 
 	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set
 	of apparently reasonable problems this will happen.''
-Figure \label{quadfailfig}b) displays a fluky integrand for which MATLAB's \texttt{integral} fails to meet the specified error tolerance.  It does not fail because of flucuations of the integrand between the nodes.  Rather it fails because the two Gauss quadratures give the same (wrong) answer.  Other adaptive quadratures fail for the same reason.  Because a heuristic stopping criterion is used, there is no theory to explain which integrands may cause the algorithms to fail.  In contrast, the adaptive quadrature developed by the FJH and collaborators \cite{HicEtal14b, Zha18a} and highlighted in Section ?? is not fooled for fluky integrands because we use the philosophy outlined in this section.
+Figure \label{quadfailfig}b) displays a fluky integrand for which \MATLAB's \texttt{integral} fails to meet the specified error tolerance.  It does not fail because of flucuations of the integrand between the nodes.  Rather it fails because the two Gauss quadratures give the same (wrong) answer.  Other adaptive quadratures fail for the same reason.  Because a heuristic stopping criterion is used, there is no theory to explain which integrands may cause the algorithms to fail.  In contrast, the adaptive quadrature developed by the FJH and collaborators \cite{HicEtal14b, Zha18a}, which follows the procedure described above and is highlighted in Sect.\ \ref{sec:localadpat}, is not fooled by fluky integrands.
 
 \newlength{\figwidthA}
 \setlength{\figwidthA}{0.45\textwidth}
+\newlength{\figheightB}
+\setlength{\figheightB}{0.2\textwidth}
 \begin{figure}[h]
 	\begin{tabular}{>{\centering}m{\figwidthA}@{\qquad}>{\centering}m{\figwidthA}}
-		\includegraphics[width=\figwidthA]{ProgramsImages/SpikyFoolIntegralcolor.eps} &
-		\includegraphics[width=\figwidthA]{ProgramsImages/FlukyFoolIntegralcolor.eps} 
+		\includegraphics[height=\figheightB]{ProgramsImages/SpikyFoolIntegralcolor.eps} &
+		\includegraphics[height=\figheightB]{ProgramsImages/FlukyFoolIntegralcolor.eps} 
 		\tabularnewline
 		a) $\abs{\SOL(f) - \ALG(f,1\text{E}{-14})} = 1 $ &
 		b) $\abs{\SOL(f) - \ALG(f,1\text{E}{-14})} =  2.8\text{E}{-5}$
 		\end{tabular}
-	\caption{Integrands for which MATLAB's \texttt{integral} fails. \label{quadfailfig}}
+	\caption{Integrands for which \MATLAB's \texttt{integral} fails. \label{quadfailfig}}
 \end{figure}
 
+There is a family of theoretically justified, adaptive algorithms based on interval 
+arithmetic described in \cite{MoKeCl09} and \cite{Rum10a} and implemented in INTLAB 
+\cite{Rum99a}.  This approach requires the function subroutines to take \emph{interval} arguments 
+and return \emph{interval} outputs.  We do not pursue this approach because existing black-box 
+function routines normally do not meet these requirements.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{The Choice of $\calc$} \label{sec:CChoice}
-As mentioned above, any algorithm that depends on function values may be fooled by a spiky function, even if that function has the nice properties guaranteed by the definition of the input space, $\calf$.  Therefore, our algorithms can only be guaranteed to succeed for $\calc$, some strict subset of $\calf$. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The de facto choice of many scholars is to choose $\calc$ to be a ball, $\cb_{\rho} := \{f \in \calf : \norm[\calf]{f} \le \rho \}$, which resembles a scoop of ice cream, \smallerscoop.  Then one may define $\ALG$ satisfying \eqref{AlgErr} as in Algorithm \ref{BallAlg}. The \emph{parameters} are the pieces that are essentially unchanged and defined by the algorithm designer, e.g., the initial sample sizes in an existing automatic algorithms such as MATLAB's \texttt{integral} and the Chebfun library.  The inputs are provided by the user and most likely change each time the algorithm is called.
-
-This ball-based algorithm is \emph{non-adaptive} because the error bound $\ErrN$ does not depend on the function data, but only on the parameter $\rho$, which defines $\calc$.  To us, having to choose $\rho$ in advance violates Goal \ref{GoalTwo}.  
+The de facto choice for many is to choose $\calc$ to be a ball, $\cb_{\rho} := \{f \in \calf : \norm[\calf]{f} \le \rho \}$, which resembles a scoop of ice cream, \smallerscoop.  Then one may define $\ALG$ satisfying \eqref{AlgErr} as in Algorithm \ref{BallAlg}. \emph{Parameters} are set by the algorithm designer and essentially unchanged e.g., the initial sample sizes in \MATLAB's \texttt{integral} and the \Chebfun library.  \emph{Inputs} are provided by the user and likely change each time the algorithm is called.
 
 \begin{algorithm}
 	\caption{Mock-Up Ball-Based $\ALG$ \label{BallAlg}} 
@@ -428,9 +458,9 @@ This ball-based algorithm is \emph{non-adaptive} because the error bound $\ErrN$
 \end{algorithmic}
 \end{algorithm}
 
+This ball-based algorithm is \emph{non-adaptive} because the error bound $\ErrN$ does not depend on the function data, but only on the parameter $\rho$, which defines $\calc$.  To us, knowing the norm of your input function in advance violates Goal \ref{GoalTwo}.  
 
-
-An \emph{adaptive} algorithm, whose computational cost depends on the input $f$, can be constructed for input functions whose norms are not much larger than their minimum norm interpolants.  Assume an infinite sequence of nodes, $\designInf$, and let $f_{\textup{int},n}$, denote the minimum norm interpolant of $f \in \calf$ based on the data $\dataN$.  Algorithm \ref{ConeAlg} is defined to succeed for $\calc$ defined as a \emph{cone}, which resembles \smallcone.
+An \emph{adaptive} algorithm, whose computational cost depends on the input $f$, can be constructed for input functions whose norms are not much larger than their minimum norm interpolants.  Assume an infinite sequence of nodes, $\designInf$, and let $f_{\textup{int},n}$, denote the minimum norm interpolant of $f \in \calf$ based on the data $\dataN$.  Algorithm \ref{ConeAlg} is defined to succeed for $\calc$ defined as a \emph{cone}, which resembles a waffle cone \smallcone.
 
 \begin{algorithm}
 	\caption{Mock-Up Cone-Based $\ALG$ \label{ConeAlg}} 
@@ -458,20 +488,24 @@ Algorithms designed to succeed for cones of inputs are typically more complex th
 \centerline{  \largercone \qquad \qquad \medscoop \hspace{-11ex}\raisebox{-2.5ex}{\color{red}\fontsize{60}{72}\selectfont $\times$}
       }
 \begin{itemize}
-    \item Algorithms optimized for non-convex cones are adaptive, whereas algorithms optimized for balls will not be.  Thus, easier problems take less computational effort than harder ones.  This helps us meeet Goal \ref{GoalThree}.
+    \item Algorithms optimized for non-convex cones are often adaptive, whereas algorithms optimized for balls will not be.  Thus, easier problems take less computational effort than harder ones.  This helps us meet Goal \ref{GoalThree}.
     
     \item Having the initial sample size, $n_0$ and the inflation factor, $\inflate$, as rarely changed algorithm parameters is conceptually easier than having the radius of the ball of inputs as a rarely changed parameter, or even requiring the user to input it.  This helps us meet Goal \ref{GoalTwo}.
 \end{itemize}
 
-Algorithm \ref{ConeAlg} provides a paradigm for adaptive algorithms, which we have used in past research described in Section \ref{}.  However, there is much more research to be done. In some cases $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)}$ and/or $\norm[\calf]{f_{\textup{int},n_0}}$ are computationally expensive, so alternative error bounds, $\ERR$, must be constructed.  Ideas on how to do this are given in Section \ref{}.  Moreover, the cone $\calc$ in Algorithm \ref{ConeAlg} depends on the specific choice of nodes used $\APP$, which we want to avoid.  How we do this is explained in Sect.\ \ref{}.
+Algorithm \ref{ConeAlg} provides a paradigm for adaptive algorithms, which we have used in past research described in Sect.\ \ref{sec:Previous}.  However, this is not the whole story. In some cases $\norm[\calf \to \calg]{\SOL(\cdot) - \APP(\cdot,n)}$ and/or $\norm[\calf]{f_{\textup{int},n_0}}$ are computationally expensive, so alternative error bounds, $\ERR$, must be constructed.  Ideas on how to do this are given in Sects.\ \ref{sec:Previous} and \ref{sec:Proposed}.  Moreover, the cone $\calc$ in Algorithm \ref{ConeAlg} depends on the specific choice of nodes used $\APP$, which we want to avoid.  How we do this is also explained in Sects.\ \ref{sec:Previous} and \ref{sec:Proposed}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{How Do We Know that $f$ for Our Problem Is in the Cone $\calc$?} \label{sec:HowKnow}  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-This question often arises.  Our answer is, ``We cannot know for sure.  The cone definition expresses prior beliefs.''  Similarly, we cannot know whether $f$ is in some ball, $\cb_{\rho}$.  We can be sure that if $\ALG(f,\varepsilon)$ fails to meet the error criterion, \eqref{AlgErr}, then $f$ lies outside $\calc$.  In this way we are pathologists, the doctors who determine why the patient died.
+Our answer to this frequent question is, ``We cannot know for sure.  The cone definition expresses prior beliefs.''  Similarly, we cannot know whether $f$ is in some ball, $\cb_{\rho}$.  We can be sure that if $\ALG(f,\varepsilon)$ fails to meet the error criterion, \eqref{AlgErr}, then $f$ lies outside $\calc$.  In this way we are pathologists, the doctors who determine why the patient died.
 
 More can be done.  In many cases there are data-driven necessary conditions that may alert the user that the input function lies outside the cone.  For example, in Algorithm \ref{ConeAlg}, $f \in \calc$ implies that $\norm[\calf]{f_{\textup{int},n^*}} \le \inflate \norm[\calf]{f_{\textup{int},n_0}}$.  If this does not hold, then one should make the cone more inclusive by increasing $\inflate$ and/or $n_0$.  In our existing and proposed adaptive algorithms,  we endeavor to derive such necessary conditions.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Computational Efficiency} \label{sec:CompEff}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 Goal \ref{GoalThree} requires our algorithm to use as little computational time or computational operations as possible.  We let $\cost(\ALG, f,\varepsilon)$ denote the \emph{information cost} of $\ALG$, i.e., the number of function data required by $\ALG(f,\varepsilon)$. To measure the overall performance of an algorithm, we define 
 \begin{equation}
@@ -481,62 +515,64 @@ recognizing that this cost will in general increase as the norm of the input inc
 \begin{equation}
     \comp(\cala(\cc), \varepsilon,\rho) := \min_{\ALG \in \cala(\cc)} \cost(\ALG, \calc, \varepsilon,\rho) .
 \end{equation}
+These definitions follow the information-based complexity literature \cite{TraWasWoz88, TraWer98}.
 We define an algorithm to be essentially optimal if there exists some fixed positive $\omega$ for which
 \begin{equation}
     \cost(\ALG, \calc, \varepsilon,\rho) \le \comp(\cala(\cc), \omega \varepsilon,\rho) \qquad \forall \varepsilon,\rho > 0.
 \end{equation}
 Part of Goal \ref{GoalThree} is to construct essentially optimal algorithms for cones, $\calc$, and not the balls, $\calc = \cb_{\rho}$, that have been studied in the past.
 
-The $\varepsilon^{-1}$-dependence of the information cost of an algorithm, $\cost(\ALG, \calc, \varepsilon,\rho)$, and the complexity of a problem,  $\comp(\cala(\cc), \varepsilon,\rho)$, is influenced by the input space, $\calf$, among other things.  If $\calf$ requires more smoothness, then the cost and complexity may grow more slowly with $\varepsilon^{-1}$.  For example, if $\calf$  assumes only finite variation of the first derivative, the complexity of univariate integration is $\Order(\varepsilon^{-1/2})$, but if $\calf$ assumes finite variation of the \emph{third} derivative, then the complexity of univariate integration is $\Order(\varepsilon^{-1/4})$.  The choice of approximation, $\APP$, also influences the information cost of $\ALG$.  For example, the composite trapezoidal rule can achieve $\Order(\varepsilon^{-1/2})$ cost for integrands whose first derivatives have finite variation but not $\Order(\varepsilon^{-1/4})$ cost for integrands with sufficient smoothness.
+The $\varepsilon^{-1}$-dependence of $\cost(\ALG, \calc, \varepsilon,\rho)$ and $\comp(\cala(\cc), \varepsilon,\rho)$ is influenced by the input space, $\calf$, among other things.  If $\calf$ requires more smoothness, then the cost and complexity may grow more slowly with $\varepsilon^{-1}$.  For example, if $\calf$  assumes only finite variation of the first derivative, the complexity of univariate integration is $\Order(\varepsilon^{-1/2})$, but if $\calf$ assumes finite variation of the \emph{third} derivative, then the complexity of univariate integration is $\Order(\varepsilon^{-1/4})$.  The choice of approximation, $\APP$, also influences the information cost of $\ALG$.  For example, the composite trapezoidal rule can achieve $\Order(\varepsilon^{-1/2})$ cost for integrands whose first derivatives have finite variation but \emph{not} the optimal $\Order(\varepsilon^{-1/4})$ cost for integrands with sufficient smoothness.
 
-Another aspect of Goal \ref{GoalThree} is to construct algorithms, $\ALG$, based on approximations, $\APP$, that can take advantage of additional smoothness to achieve low cost, but are still essentially optimal if the input, $f$, has only limited smoothness.  That is, we want a single $\ALG$ that performs well across a spectrum of  $\calc$ assuming different smoothnesses.
+Another aspect of Goal \ref{GoalThree} is to construct algorithms, $\ALG$, based on approximations, $\APP$, that can take advantage of additional smoothness to achieve low cost, but are still essentially optimal if the input, $f$, has only limited smoothness.  That is, we want \emph{a single} $\ALG$ that performs well across a spectrum of  $\calc$ assuming different smoothnesses.
 
-For multivariate problems one may face the \emph{curse of dimensionality}.  Suppose that the input, $f$, is a function of $d$ variables. If we label the essential pieces of our problem, approximation, algorithm, etc.\ by the number of variables involved, i.e., 
+Multivariate problems risk the \emph{curse of dimensionality}.  Suppose $f$ is a function of $d$ variables, and let's label the essential pieces of our problem, approximation, algorithm, etc.\ by $d$, i.e., 
 \begin{equation}
     \calf_d, \quad \calg_d, \quad \calc_d, \quad \SOL_d, \quad \APP_d,\quad \ALG_d, \quad \cala(\calc_d),
 \end{equation}
-(recognizing that the output space may or may not depend on $d$), then we want to understand how $\cost(\ALG_d, \calc_d, \varepsilon,\rho)$ and $\comp(\cala(\cc_d), \varepsilon,\rho)$ depend not only on $\varepsilon$, but also on $d$.  This is the the question of \emph{tractability}, an active area of research during the past two decades, much of which is contained in the three volume series by Novak and Wo\'zniakowski \cite{NovWoz08a,NovWoz10a,NovWoz12a}.
+($\calg_d$ might not depend on $d$).  We want to know how $\cost(\ALG_d, \calc_d, \varepsilon,\rho)$ and $\comp(\cala(\cc_d), \varepsilon,\rho)$ depend not only on $\varepsilon^{-1}$, but also on $d$.  This is the question of \emph{tractability}, an active area of recent research, much of which is described by Novak and Wo\'zniakowski \cite{NovWoz08a,NovWoz10a,NovWoz12a}.
 
-Different flavors of tractability are defined in terms of how  $\comp(\cala(\cc_d), \varepsilon,\rho)$ grows with $d$.  By choosing appropriate norms for $\calf$ and $\calg$, we may often identify situations that avoid the curse of dimension (exponential growth in $d$) and even achieve strong tractability (independence of $d$).   For example, if the norms reflect that the importance of the variables, $x_1, x_2, \ldots$, decays quickly enough, which applies in some finance calculations, there is strong tractability.  Nearly all tractability studies assume that $\calc_d$ is a ball.  Goal \ref{GoalThree} will involve determining the tractability of problems and algorithms when $\calc_d$ is a cone.
+Different flavors of tractability are defined in terms of how  $\comp(\cala(\cc_d), \varepsilon,\rho)$ grows with $d$.  By choosing appropriate norms for $\calf$ and $\calg$, we may often identify situations that avoid the curse of dimensionality (exponential growth in $d$) and even achieve strong tractability (independence of $d$).   For example, if the norms reflect that the importance of the variables, $x_1, x_2, \ldots$, decays quickly enough, which applies in many finance calculations, there is strong tractability.  Nearly all tractability studies assume that $\calc_d$ is a ball.  Goal \ref{GoalThree} will involve determining the tractability of problems and algorithms when $\calc_d$ is a cone.
 
-If the information cost of $\ALG(f,\varepsilon)$ is $n^* = \cost(\ALG,f,\varepsilon)$, the cost of one $f(\bx)$ value as $\$_d(f)$, where $\bx$ is a $d$-vector, and the cost required by $\ALG(f,\varepsilon)$ to manipulate $\dataN$ is $\Order(n^{*p})$, then the total computational cost of $\ALG(f,\varepsilon)$ is 
-\[
- \Order(\$_d(f)n^* + n^{*p})
-\]
+If the information cost of $\ALG(f,\varepsilon)$ is $n^* = \cost(\ALG,f,\varepsilon)$, the cost of one $f(\bx)$ value is $\$_d(f)$, and the cost required by $\ALG(f,\varepsilon)$ to manipulate $\dataN$ is $\Order(n^{*p})$, then the total computational cost of $\ALG(f,\varepsilon)$ is $ \Order(\$_d(f)n^* + n^{*p})$.
 The requirement of Goal \ref{GoalThree} for computational efficiency must address several cases.  
 \begin{description}
-    
 
-\item[Cheap Function Values]  If $\$_d(f)$ is small, which is common, then we want algorithms with $p \approx 1$ so that the cost of manipulating the function data does not dominate.  Probabilistic methods that model $f$ as a Gaussian process require matrix manipulations that ordinarily cost $\Order( n^{*3})$.  Our research will find ways to avoid such costs.
+\item[Cheap Function Values]  If $\$_d(f)$ is small, then we want algorithms with $p \approx 1$ so that the cost of manipulating the function data does not dominate.  Probabilistic methods that model $f$ as a Gaussian process require matrix manipulations that ordinarily cost $\Order( n^{*3})$.  Our research will find ways to avoid such costs.
 
-    \item[Expensive Function Values] In some practical  problems, such as constructing surrogates for expensive computer simulations,  $\$_d(f)$ is huge.  Then $n^*$ must be moderate, say several hundred, for practical reasons, and cost of data manipulation is unimportant.
+    \item[Expensive Function Values] In some practical  problems, such as constructing surrogates for expensive computer simulations,  $\$_d(f)$ is huge.  For practical reasons, $n^*$ must be moderate, say several hundred, and the cost of data manipulation is negligible.
     
-    \item[Infinite $d$] When integrating functions of stochastic processes discretized by $d$ time steps, it is common to have $\$_d(f) = \Order(d)$ and to want the limit of the integral as $d \to \infty$.  Computational efficiency can be achieved by multi-level Monte Carlo methods and the multivariate domain 
+    \item[Infinite $d$] When integrating functions of stochastic processes discretized by $d$ time steps, it is common to have $\$_d(f) = \Order(d)$ and to want the limit of the integral as $d \to \infty$.  Computational efficiency can be achieved by multi-level Monte Carlo methods and the multivariate domain decomposition method.  
 \end{description}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Availability and Practicality} \label{sec:AvailPract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Practitioners rely on languages and software packages such as MATLAB \cite{MAT9.5}, Chebfun \cite{TrefEtal17a}, the NAG library \citep{NAG23}, the Python scientific library SciPy \cite{SCIPY}, the Gnu Scientific Library (GSL) \cite{GSL}, R \cite{R3.5.1_2018}, and Julia \cite{Julia1.0}. Whether they are commercial or open source, the expectation is that they offer state-of-the-art algorithms that have been carefully coded and tested.  
+Practitioners rely on languages and software packages such as \MATLAB, \Chebfun, \NAG, \SciPy, \GSL, \hypertarget{Rlink}{R} \cite{R3.5.1_2018}, and \hypertarget{Julialink}{Julia} \cite{Julia1.0}. Whether commercial or open source, they are expected to provide reliable algorithms that have been carefully coded and tested.  
 
-On the other hand, research code---which often provides significant advances over what is available in the above-mentioned software packages---is often difficult to access or use because scholars have not invested the time to make it so.  In line with calls for reproducible research \cite{BaiBor12a, Pen11, Sto14a} and better scientific software \cite{BSS18}, this project will make its research code accessible, easy to use, and well tested.  We will continue the development of our Guaranteed Automatic Integration Library \hypertarget{GAILlink}{(GAIL)} \cite{ChoEtal17b}.  Moreover, we will combine our work on quasi-Monte Carlo software with that of other research groups in a Quasi-Monte Carlo Community Software \hypertarget{QMCSoftlink}{(QMCSoft)}.  This will fulfill Goal \ref{GoalFour}.
+On the other hand, research code---which may provide significant advances over what is available in the above-mentioned software packages---is often difficult to access or use because scholars have not invested the time to make it so.  Heeding the call for reproducible research \cite{BaiBor12a, Pen11, Sto14a} and better scientific software \cite{BSS18}, this project will make its research code accessible, easy to use, and well tested.  We will continue the development of our Guaranteed Automatic Integration Library \hypertarget{GAILlink}{(GAIL)} \cite{ChoEtal17b}.  Moreover, we will combine our work with that of other research groups in a Quasi-Monte Carlo Community Software \hypertarget{QMCSoftlink}{(QMCSoft)}.  This will fulfill Goal \ref{GoalFour}.
 
-Theory must not only be correct, but it should be relevant to practical applications.  Making our software accessible and easy to use will facilitate others using it in practice.  We will also test our software on standard test cases, such as \cite{VirLib17a}.  This earch groups in a Quasi-Monte Carlo Community Software \hypertarget{QMCSoftlink}{(QMCSoft)}.  This will fulfill Goal \ref{GoalFive}.
+Theory should not only be correct but also relevant to practical applications.  Making our software accessible and easy to use will facilitate others testing its practicality.  We will also try our algorithms on standard test cases, such as \cite{VirLib17a}.  This will fulfill Goal \ref{GoalFive}.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Remainder of This Project Description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-The ideas described in generality above will be fleshed out in detail in the coming sections.  The next section describes results of a recently completed NSF grant.  Sect.\ \ref{secProposed} describes the intellectual merit of our project.  Sect.\ \ref{SectBroad} describes the broader impact of our project.  To avoid the tedium of technical detail, we give general explanations in many cases. 
+The ideas described above will be fleshed out in further detail below.  The next section describes results of a recently completed NSF grant.  Sect.\ \ref{sec:Proposed} describes the intellectual merit of our project.  Sect.\ \ref{SectBroad} describes the broader impact of our project.  To avoid the tedium of technical detail, we give general explanations in many cases. 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Results of Previous NSF-Funded Research,
 NSF-DMS-1522687\except{toc}{, \\ \emph{Stable, Efficient, Adaptive Algorithms for 
 Approximation and 
 Integration}, \\
-\$270,000, August 2015 -- July 2018}} \label{SectPrevious}
+\$270,000, August 2015 -- July 2018}} \label{sec:Previous}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Gregory E.\ Fasshauer (GEF, co-PI) and Fred J.\ Hickernell (PI) led this project.  In the summer 
-of 2016, GEF left Illinois Tech and participated as a sub-contractor.  
-Sou-Cheng Choi (SCTC), co-PI on this proposal, contributed as a senior personnel.  Other major contributors were FJH's research students Yuhan Ding (YD, PhD 2015), Lan Jiang (LJ, PhD 2016), 
-Llu\'is Antoni Jim\'enez Rugama (LlAJR, PhD 2016), Da Li (DL, MS 2016), Jagadees Rathinavel (JR, 
+
+Gregory E.\ Fasshauer (GEF, co-PI) and FJH (PI) led this project.  GEF left Illinois Tech in 2016 and continued as a sub-contractor.  
+SCTC contributed as senior personnel.  Other major contributors were FJH's research students Yuhan Ding (YD, PhD 2015), Lan Jiang (LJ, PhD 2016), 
+Llu\'is Antoni Jim\'enez Rugama (LlAJR, PhD 2016), Da Li (DL, MS 2016), Jiazhen Liu (JL, MS 2018), Jagadees Rathinavel (JR, 
 PhD student), Xin Tong (XT, MS 2014, PhD student, University of Illinois at Chicago), Kan Zhang (KZ, PhD 
 student), Yizhi Zhang (YZ, PhD 2018), and Xuan Zhou (XZ, PhD 2015).  Articles, theses,  
 software, and preprints supported in 
@@ -573,27 +609,23 @@ include
 	Zho15a,
 	ZhoHic15a}.
 
-
-%%======================
-
-%%======================
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Intellectual Merit from Previous NSF Funding}
 \label{previousmeritsubsec}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection{Adaptive Algorithms for Univariate Problems} \label{localadpatsec}
-In \cite{HicEtal14b}---funded by a still earlier NSF grant---FJH, YD, YZ, and collaborators developed an adaptive algorithm for univariate integration, $\SOL(f) = \int_a^b f(x) \, \dif x$, based on the trapezoidal rule.  In his recent PhD thesis \cite{Zha18a}, YZ constructed an improved adaptive trapezoidal rule that succeeds for all integrands whose first derivatives have total variation not much greater than the total variation of their linear spline interpolant:
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Adaptive Algorithms for Univariate Problems} \label{sec:localadpat}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+In \cite{HicEtal14b}, FJH, YD, YZ, and collaborators developed an adaptive trapezoidal rule, i.e., $\SOL(f) = \int_a^b f(x) \, \dif x$.  In his PhD thesis \cite{Zha18a}, YZ constructed an improved adaptive trapezoidal rule for all integrands whose first derivatives have total variation not much greater than the total variation of their linear spline interpolant:
 \[
-\cc: = \left \{ f : \Var(f') \le \inflate(\size(\{x_i\}_{i=0}^n)) \Var(f'_{\textup{int},n}) \ \forall \size(\design) \le \hcut \right\}.
+\cc: = \left \{ f : \Var(f') \le \inflate(\size(\{x_i\}_{i=0}^n)) \Var(f'_{\textup{int},n}) \ \ \forall \size(\{x_i\}_{i=0}^n)) \le \hcut \right\}.
 \]
-In this definition, the nodes need not be equally spaced, $\size(\cdot)$ denotes the maximum distance between adjacent nodes, $f_{\textup{int},n}$ denotes the linear spline based on the given nodes, and $\inflate(h) = \inflate(0) \hcut/(\hcut - h)$.  The adaptive algorithm, $\ALG$, constructed by YZ fits the model of Algorithm \ref{ConeAlg}, has  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order(\sqrt{\rho/\varepsilon})$ and is optimal.  
+In defining $\cc$ the nodes may be unequally spaced, $\size(\cdot)$ denotes the maximum distance between adjacent nodes, $f_{\textup{int},n}$ denotes the linear spline based on $n$ nodes, and $\inflate(h) = \inflate(0) \hcut/(\hcut - h)$.  The $\ALG$ constructed by YZ follows Algorithm \ref{ConeAlg}, has  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order(\sqrt{\rho/\varepsilon})$, and is essentially optimal.  YZ also constructed an adaptive Simpson's rule.  In this case, the $f \in \cc$ have $\Var(f''')$ not much greater than the total variation of a piecewise cubic polynomial interpolant.  Moreover,  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order([\rho/\varepsilon]^{1/4})$ and is optimal.  
 
-To obtain higher order convergence, YZ also constructed an adaptive Simpson's rule, this time where $\cc$ is the cone of functions for which $\Var(f''')$ is bounded by an inflation factor times the total variation of a piecewise cubic polynomial interpolant.  In this cases  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order([\rho/\varepsilon]^{1/4})$ and is optimal.  
-
-The algorithms developed by YZ are \emph{globally adaptive} in the sense that the sampling density is constant (equally spaced nodes).  However, for univariate problems \emph{locally adaptive} methods (unequally spaced nodes) may perform better.  FJH, SCTC, YD, and XT extended the globally adaptive algorithms in \cite{HicEtal14b} for univariate function approximation, $\SOL(f) = f$, and minimization, $\SOL(f) = \min_{a \le x \le b} f(x)$ to locally adaptive algorithms.  The cone of input functions, $f$ is defined such that $f''$ cannot change too drastically over a small interval.  Finite differences can then be used to bound $f''$ and locally bound the error of the linear spline in approximating a function or seeking its minimum. Figure 
-\ref{localadaptfig} displays an example of the function data required for function approximation and minimization.  The function $f$ is 
-sampled sparsely where $|f''(x)|$ is small. For the function minimization problem, $f$ is also sampled sparsely when $f(x)$ is large compared to the observed minimum.
+YZ's algorithms are \emph{globally adaptive}---the sampling density is constant (equally spaced nodes).  However, \emph{locally adaptive} methods (unequally spaced nodes) may perform better for univariate problems.  FJH, SCTC, YD, and XT extended the globally adaptive algorithms in \cite{HicEtal14b,Ton14a} for univariate function approximation, $\SOL(f) = f$, and minimization, $\SOL(f) = \min_{a \le x \le b} f(x)$, to locally adaptive algorithms \cite{ChoEtal17a}.  The cone $\cc$ requires $f''$ to change mildly over small intervals.  Finite differences are used to locally bound the error of the linear spline in approximating a function or seeking its minimum. Figure 
+\ref{localadaptfig} depicts the function data required for function approximation and minimization.  Here, $f$ is 
+sampled sparsely where $|f''(x)|$ is small. For function minimization, $f$ is also sampled sparsely when $f(x)$ is significantly bigger than the observed minimum.
 
 \begin{figure}[h]
 	\centering
@@ -608,29 +640,24 @@ sampled sparsely where $|f''(x)|$ is small. For the function minimization proble
 
 
 For locally adaptive function approximation algorithm 
-$\cost(\ALG,f,\varepsilon) = \Order\left(\sqrt{\norm[1/2]{f''}/\varepsilon} \right)$ \cite{ChoEtal17a}, where 
-$\norm[1/2]{\cdot}$, the $1/2$-quasinorm, is weaker than the sup-norm.  This is  
-asymptotically the same cost as for the best possible algorithm for this problem. In contrast, 
+$\cost(\ALG,f,\varepsilon) = \Order\left(\sqrt{\norm[1/2]{f''}/\varepsilon} \right)$ \cite{ChoEtal17a}.  This is essentially optimal. In contrast, 
 our older globally adaptive function approximation algorithm in \cite{HicEtal14b} has a 
-computational cost of $\Order\left(\sqrt{\norm[\infty]{f''}/\varepsilon} \right)$.  For a somewhat 
-spiky, but reasonable, 
-function inside $\cc$, the local adaption algorithm may require significantly less effort 
-than a global adaption algorithm because $\norm[1/2]{f''}$ will be much smaller than 
+computational cost of $\Order\left(\sqrt{\norm[\infty]{f''}/\varepsilon} \right)$.  The local adaption algorithm may require significantly less effort because $\norm[1/2]{f''}$ may be much smaller than 
 $\norm[\infty]{f''}$.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection[QMCsec]{Globally  Adaptive Quasi-Monte Carlo (QMC) 
 Cubature} \hypertarget{QMClink}{}
-\label{QMCsec}
-The FJH, LlAJR, and DL have 
-developed adaptive quasi-Monte Carlo algorithms for $\SOL(f) = \int_{[0,1]^d} f(\bx) \, \dif \bx$  \cite{HicJim16a,JimHic16a}.  For multidimensional integrals over different domains, a 
-transformation of variables can 
-often change the domain to the unit cube.  \QMC algorithms  commonly 
+\label{sec:QMC}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FJH, LlAJR, and DL have 
+developed adaptive \QMC algorithms for $\SOL(f) = \int_{[0,1]^d} f(\bx) \, \dif \bx$  \cite{HicJim16a,JimHic16a}.  \QMC algorithms  commonly 
 choose the 
 sequence of nodes, $\{\bx_i\}_{i=1}^\infty$, to be an integration lattice node sequence  or a digital 
 sequence, especially the Sobol' sequence \cite{DicEtal14a}.  \QMC cubature is superior to 
 independent and identically distributed Monte Carlo (\hypertarget{IIDMClink}{IID MC}) cubature 
 because the nodes are more 
-evenly spread throughout the domain.   Fig.\ \ref{PtsFig} illustrates this.
+evenly spread throughout the domain.   Fig.\ \ref{PtsFig} illustrates this evenness.
 
 \begin{figure}[h] % MATLAB Driver: PlotPoints.m
 	\centering
@@ -641,9 +668,9 @@ evenly spread throughout the domain.   Fig.\ \ref{PtsFig} illustrates this.
 	\caption{IID nodes contrasted with nodes used for QMC cubature.\label{PtsFig}}
 \end{figure}
 
-For the two kinds of \QMC sampling considered here and illustrated in Fig.\ \ref{PtsFig}, $n$ is 
+For the \QMC sampling considered here, $n$ is 
 commonly a power of two.  The well-known theoretical error bound for 
-quasi-Monte Carlo cubature can be expressed in terms of some of the Fourier coefficients of the 
+\QMC cubature can be expressed in terms of some of the Fourier coefficients of the 
 integrand \cite{DicEtal14a, DicPil10a, HicJim16a,JimHic16a, Nie92, SloJoe94}:
 \begin{gather}
 \nonumber
@@ -653,49 +680,15 @@ f(\bx) \, \overline{\phi}_{\bk}(\bx) \quad \forall \bk \in \bbK, \\
 \abs{\SOL(f) - \APP(f,n)} \le \sum_{\bk \in P^\perp_n \setminus\{\bzero\}} \abs{\hf(\bk)} \\
 \nonumber
 \text{Dual set: }P_n^\perp : = \{\bk \in \bbK \, \vert \, \phi_{\bk}(\bx_i) = \phi_{\bk}(\bx_1) \text{ for } 
-i=1, \ldots, n \}. \\[3ex]
-\nonumber
-\begin{array}{ccc}
-\text{\QMC Nodes} & \bbK & \phi_{\bk} \\
-\toprule
-\text{Shifted integration lattice sequence} & \integers^d & \text{Multivariate complex 
-exponentials}\\
-\text{Shifted digital sequence, e.g., Sobol' sequence} & \naturals_0^d & \text{Multivariate Walsh 
-functions}
-\end{array}
+i=1, \ldots, n \}.
 \end{gather}
+For lattice nodes, $\bbK = \integers^d$ and the $\phi_{\bk}$ are complex exponentials.  For digital sequence nodes,  $\bbK = \natzero^d$ and the $\phi_{\bk}$ are Walsh functions.
 
-FJH and LlAJR in \cite{HicJim16a,JimHic16a} defined a cone of reasonable integrands, $\cc$, 
-whose Fourier coefficients do not decay erratically, but need not decay monotonically.  This allowed them to derive a data-driven bound on the cubature error above in \eqref{multiInt} in terms of the discrete Fourier coefficients: 
-\begin{equation*}
-\ERR(\dataN,n) = \fC(n) \sum_{\kappa = n/(2n_1) + 1}^{n/n_1} \abs{\tf_n(\bk(\kappa))}, \qquad \text{where } \tf_n(\bk)  = \frac{1}n \sum_{i=1}^{n} f(\bx_i) \overline{\phi}_{\bk}(\bx_i).
-\end{equation*}
-Here $\fC(n)$ is an inflation factor and $\{\bk(\kappa)\}_{\kappa = 1}^\infty$ 
-denotes an ordering of the $d$-dimensional wavenumbers in the index set, $\bbK$.  The data driven error bound depends on the smallest ``moderate-sized'' wavenumbers because they are closes to the large wavenumbers, which contribute to the error, but not so close as to have the discrete Fourier coefficients contaminated by undue aliasing.  The integer $n_1$ is a power of $2$ used to define what is meant by ``moderate-sized'' wavenumbers.
-
-
-
-
-. took $\oerr_n(f)$ as a starting point for their 
-adaptive \QMC rules.   True Fourier 
-coefficients, $\hf(\bk)$ may be approximated 
-by discrete Fourier coefficients,
-\begin{equation*}
-\tf_n(\bk)  = \frac{1}n \sum_{i=1}^{n} f(\bx_i) \overline{\phi}_{\bk}(\bx_i).
-\end{equation*}
-The $n$ unique discrete Fourier coefficients can be evaluated with a computational cost of 
-$\Order(n \log(n))$.  However, the index set $P^\perp_n \setminus\{\bzero\}$ contains only large 
-wavenumbers, for which the discrete Fourier coefficients approximate poorly the true Fourier 
-coefficients.  So, PI and LlAJR defined a cone of reasonable integrands, $\cc$, 
-whose Fourier coefficients do not decay erratically.  We omit the important technical details, but 
-provide an intuitive explanation.  The true Fourier coefficients of a reasonable integrand
-need not decay monotonically.  But, if the average size of the true Fourier coefficients for 
-moderate-sized (relative to $n$) wavenumbers is small, then the average size of the true 
-coefficients for large-sized wavenumbers must also be small.  Fig.\ \ref{GoodBadWalshFig} 
-illustrates an example of a reasonable function and an unreasonable function and their Fourier 
-(Walsh) coefficients.  Here and in the error bound below, $\{\bk(\kappa)\}_{\kappa = 1}^\infty$ 
-denotes an ordering of 
-the $d$-dimensional wavenumbers in $\bbK$.
+FJH and LlAJR in \cite{HicJim16a,JimHic16a} defined a cone integrands, $\cc$, 
+whose Fourier coefficients decay steadily, but perhaps not monotonically.  The definition is technical, but Fig.\ \ref{GoodBadWalshFig} 
+illustrates two functions and their Fourier 
+(Walsh) coefficients, one inside the cone and one outside.  Here and in the error bound below, $\{\bk(\kappa)\}_{\kappa = 1}^\infty$ 
+denotes an ordering of the $d$-dimensional wavenumbers in $\bbK$.
 
 \begin{figure}[h]
 	\centering
@@ -707,93 +700,47 @@ the $d$-dimensional wavenumbers in $\bbK$.
 	{ProgramsImages/FilteredFunctionWalshFourierCoeffDecay.eps} \ \ 
 	\includegraphics[width = 0.23\textwidth] 
 	{ProgramsImages/WalshFourierCoeffDecayFilter.eps}
-	\caption{One reasonable and one unreasonable function 
+	\caption{A function inside $\cc$ and another with high frequency noise outside $\cc$
 		%and their Fourier coefficients 
 	\label{GoodBadWalshFig}}
 \end{figure}
 
-Under this definition of $\cc$, a 
-theoretically justified, data-based error bound can be derived:
+This definition  of $\cc$ allowed FJH and LlAJR to derive a data-driven bound on the cubature error above in \eqref{multiInt} in terms of the \emph{discrete} Fourier coefficients: 
 \begin{equation*}
-\herr_n(f) = \fC(n) \sum_{\kappa = n/(2n_1) + 1}^{n/n_1} \abs{\tf_n(\bk(\kappa))}.
+\ERR(\dataN,n) = \fC(n) \sum_{\kappa = n/(2n_1) + 1}^{n/n_1} \abs{\tf_n(\bk(\kappa))}, \qquad \text{where } \tf_n(\bk)  = \frac{1}n \sum_{i=1}^{n} f(\bx_i) \overline{\phi}_{\bk}(\bx_i).
 \end{equation*}
-Here $\fC(n)$ is an inflation factor and $n_1$ is a power of $2$ used to define what is meant by 
-``moderate-sized'' wavenumbers.  This data-driven error bound in terms of the discrete Fourier 
-coefficients is used in \cite{HicJim16a,JimHic16a} to construct guaranteed adaptive \QMC cubature 
-algorithms: $n$ is increased by doubling until $\herr_n(f) \le \varepsilon$.  Then choosing 
-$\fA(f,\varepsilon) = A_n(f)$ satisfies  error criterion 
-\eqref{errorcrit}.  
+Here $\fC(n)$ is an inflation factor.  The data driven error bound depends on moderate-sized wavenumbers because they best emulate the error---which comes from large wavenumbers---but their discrete Fourier coefficients are not contaminated by aliasing. This data-driven error bound is used to construct guaranteed adaptive \QMC cubature 
+algorithms: $n$ is increased by doubling until $\ERR(\dataN,n^*) \le \varepsilon$.  Then choosing 
+$\ALG(f,\varepsilon) = \APP(f,n^*)$ satisfies 
+\eqref{AlgErr}.  
 
-If $n$ is the final number of nodes required, the computational cost of these adaptive \QMC 
-cubature algorithms  is $\Order\bigl(\$(f)n + n \log(n)\bigr)$, 
-where $\$(f)$ denotes the cost of one function value.  For practical values of $n$,  $\$(f)n$ and 
-$n \log(n)$ are comparable.
+Using a fast transform can be used to compute the discrete Fourier coefficents, the total cost is $\Order\bigl(\$_d(f)n^* + n^* \log(n^*)\bigr)$.  So, the cost of manipulating the function data is not much worse than the computational cost of collecting the function data, a concern raised in Sect.\ \ref{sec:CompEff}.
 
-The PI, LlAJR, and DL have generalized the adaptive \QMC rules to accommodate control variates.  
-%This means replacing the integrand $f$ by $f - \bbeta^T[\bg - S(\bg)]$, where $\bg$ is a vector 
-%function whose integral, $S(\bg)$, is known exactly.  Note that $S(f - \bbeta^T[g - S(g)]) = 
-%S(f)$ for any constant $\bbeta$.  The data-driven error bound now is $\herr_n(f -  
-%\bbeta^T[g - S(g)])$, and the choice of $\bbeta$ can significantly decrease or increase this error 
-%bound, 
-%and consequently the computational cost.  
-For \IIDMC cubature, a nearly optimal control variate coefficient, $\bbeta$, is 
-computed by linear regression, but as pointed out by \cite{HicEtal03}, this is not necessarily the 
-correct $\bbeta$ for \QMC cubature.  The PI, LlAJR, and DL provide an alternative, satisfactory 
-method for 
-determining $\bbeta$.
-% that looks directly at $\herr_n(f -  \bbeta^T[g - S(g)])$ \cite{HicEtal17a}.
-
-\subsubsection{Adaptive Bayesian Cubature}  \label{Bayessect} Recent research by the PI and 
-JR assumes
-that the integrand in the multivariate integration problem \eqref{multiInt} is an instance of a 
-Gaussian 
-Process with constant mean $m$, and covariance kernel, $C:[0,1]^d \times [0,1]^d \to \reals$, i.e., 
-$f \sim \GP (m,C)$.  This approach to computational mathematics has been pursued by several 
-scholars in the past \cite{Dia88a, OHa91a, RasGha03a, Rit00a} and has gained recent interest 
-under the name \href{http://www.probabilistic-numerics.org}{probabilistic numerics}.  Under this 
-approach one 
-infers the mean, $m$, and the parameters defining the covariance kernel, $C$, using maximum 
-likelihood estimation, and then constructs a credible interval in the Bayesian sense, $\Prob[\abs{S(f) 
-- A_n(f)} \le \herr(f)] = 99\%$, where $A_n$ is the statistically best approximation to $S(f)$, and 
-$\herr_n(f)$ depends on the function data and the inferred values of $m$ and $C$. 
-
-A longstanding drawback of this approach has been the computational cost of the matrix operations 
-involving the Gram matrix $\mC = \bigl(C(\bx_i,\bx_j)\bigr)_{i,j=1}^n$, which are ordinarily at least 
-$\Order(n^3)$.  Attempts to overcome this cost include \cite{AniCheSte16a, ParEtal17a}.  The 
-contribution of the PI and JR has been to choose families of covariance kernels with Hilbert-Schmidt 
-decompositions of the form $C(\bx,\bt) = \sum_{\bk \in \bbK} \lambda_\bk \phi_{\bk}(\bx) 
-\phi_{\bk}(\bt)$, where the $\phi_{\bk}$ are \emph{the same as those in the previous section}.  The 
-eigenvalues $\lambda_\bk$ must be chosen so that the infinite sum has a closed form.  Such 
-kernels have arisen in other contexts \cite{Hic99b,HicYue00}.  Kernels of 
-this form used with the matching \QMC nodes yield Gram matrices $\mC$ for which the 
-necessary vector-matrix operations can be accomplished with computational cost $\Order(n 
-\log(n))$, making Bayesian cubature practical.  This work has been presented at conferences and 
-as being prepared for submission for publication.
-
-\emph{Generalized Error Criteria.}  Some practitioners may prefer the adaptive 
-algorithm 
-to satisfy a more general error 
-criterion than \eqref{errorcrit}, e.g., 
+FJH, LlAJR, and DL have generalized the adaptive \QMC rules to accommodate control variates \cite{HicEtal17a}.  They also extended adaptive cubatures to a more general error criterion.  Bayesian inference \cite{GelEtal13} and computing Sobol' indices \cite{Sal02a} involve a function of \emph{more than one} integral. We vectorized the solution operator, $\SOL : \calf^p \to \reals^p$, defined the answer as some function of this vector of integrals, $\Ans: \reals^p \to \reals$, allowed a relative error tolerance, $\reltol$, and constructed an $\ALG$ satisfying
 \begin{multline}
-\label{generrorcrit} \tag{G-CRIT}
-\abs{\Ans(S(\vf)) - \fA(\vf,\varepsilon, \reltol) } \le \max(\varepsilon, \reltol \abs{\Ans(S(\vf))} ),  \\
- \vf: 
-\Omega \to \reals^p, \ \ V: \reals^p \to \reals, \ \ S(\vf) = \bigl(S(f_1), \ldots, S(f_p) \bigr)^T, \ \  0 \le 
-\reltol \le 1,
+\label{generrorcrit} \tag{G-ALG-CRIT}
+\abs{\Ans(\SOL(\vf)) - \ALG(\vf,\varepsilon, \reltol) } \le \max(\varepsilon, \reltol \abs{\Ans(\SOL(\vf))} ) \\
+\forall \vf \in \cc^p, \ \varepsilon > 0, \ 0 < \reltol < 1 .
 \end{multline}
-where now the value sought, $\Ans(S(\vf))$, is a function the integral of $p$-vector function, 
-$\vf$. Examples of situations where there the value sought is a function of several intergrals include 
-Sobol' indices \cite{Sal02a} and Bayesian inference \cite{GelEtal13}.  The approximate solution is 
-acceptable if it 
-satisfies either an absolute error tolerance, 
-$\varepsilon$, \emph{or} a relative error tolerance, $\reltol$.  The PI, LlAJR, and DL showed in 
-\cite{HicEtal17a} how to use data-driven error bounds, $\abs{S(f_j) - A_n(f_j)} \le \herr_{n}(f_j)$, $j = 
-1, \ldots, p$,  to 
-choose an appropriate $\fA(\vf,\varepsilon, \reltol)$.  In general, the 
-best approximation is \emph{not} $\Ans(A_n(\vf))$.  
+JL derived a similar generalization for an adaptive trapezoidal rule \cite{Liu17a}.
 
 
-\emph{Multivariate Function Approximation.}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Adaptive Bayesian Cubature}  \label{sec:Bayes} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The research above assumes a deterministic integrand, but recent research by FJH and JR assumes that the integrand is an instance of a Gaussian process with constant mean $m$, and covariance kernel, $C:[0,1]^d \times [0,1]^d \to \reals$, i.e., 
+$f \sim \GP (m,C)$.  This \href{http://www.probabilistic-numerics.org}{probabilistic numerics} approach dates back at least thirty years \cite{Dia88a, OHa91a, RasGha03a, Rit00a} and has generated recent interest. One constructs a credible interval in the Bayesian sense, $\Prob\bigl[\abs{\SOL(f) 
+- \APP(f,n)} \le \ErrN \bigr] = 99\%$, where $\APP(f,n)$ is the posterior mean.  By increasing $n$ until the width of the credible interval is no greater than the error tolerance, one has an adaptive Bayesian cubature.  The hyper-parameters, $m$ and the parameters defining the covariance kernel, $C$, may be treated by empirical Bayes (maximum likelihood estimation), full Bayes, and/or cross-validation \cite{RatHic19a}.  Although similar computations can done assuming $C$ to be a reproducing kernel for a Hilbert space, the Gaussian process approach facilitates data-driven error bounds.
+
+A longstanding drawback of Bayesian cubature has been the computational cost of operations
+involving the Gram matrix $\mC = \bigl(C(\bx_i,\bx_j)\bigr)_{i,j=1}^n$, which is ordinarily
+$\Order(n^3)$.  Attempts to overcome this cost include \cite{AniCheSte16a, ParEtal17a}.  FJH and JR chose shift-invariant covariance kernels, which matched the lattice nodes used for sampling the integrand \cite{RatHic19a}. This yields Gram matrices $\mC$ for which the necessary vector-matrix operations can be accomplished by fast transforms with computational cost $\Order(n 
+\log(n))$, making Bayesian cubature practical.  %We also found a way to avoid the round-off error that often plagues these Gaussian process methods for large $n$.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Multivariate Function Approximation} \label{sec:PrevFunAppx}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 GEF has led the effort in accurate, well-conditioned function approximation and solution of 
 differential equations using reproducing kernel Hilbert space methods.  Much of his effort has been 
 developing truncated Hilbert-Schmidt decomposition of the reproducing kernels using appropriate 
@@ -804,97 +751,277 @@ convection-diffusion-reaction equations.  GEF and his collaborators have been ex
 decompositions of the Matern kernels on the half line to the entire real line, the first such analytical 
 derivations.
 
+FJH, YD, and LlAJR investigated the solution of general linear operators, $\SOL$, when series coefficients are available \cite{DinHic20a}.  Suppose that 
+\begin{subequations} \label{serForm}
+\begin{gather}
+    \calf := \left \{ \sum_{\bk \in \caln} \hf(\bk) u_{\bk} : \norm[\calf]{f} := \norm[r]{\left(\frac{\bigabs{\hf(\bk)}}{\lambda_{\bk}} \right)_{\bk \in \caln}} \right \},  \quad
+    \calg : = \biggl \{ \sum_{\bk \in \caln} \hg(\bk) v_{\bk} : \norm[\calg]{g} := \bignorm[r']{\hg}\biggr \}, \\ 
+    v_{\bk} = \SOL(u_{\bk}), \quad
+     \lambda_{\bk_1} \ge \lambda_{\bk_2} \ge \cdots, \qquad
+      n_0 < n_1 < n_2 < \cdots, \quad r^{-1} + r'{}^{-1} = 1.
+\end{gather}
 
+\end{subequations}
+By assuming a steady decay of the series coefficients, ordered according to the $\lambda_{\bk}$, for the case $r=2$, we were able to construct an adaptive algorithm defined on a cone, $\cc \subset \calf$, and based on sampling \emph{Fourier coefficients}, not function values.  This algorithm is essentially optimal.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Broader Impacts from Previous NSF Funding} \label{prevBIsect}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\emph{Publications, Conference Participation, and Conference Organization.} This 
-project has resulted in a number of publications by the FJH, GEF, SCTC, students, and collaborators listed at 
-the beginning of this section.  We have also spoken at a number of applied mathematics, statistics, 
+\emph{Publications, Conference Participation, and Conference Organization.} A number of publications by FJH, GEF, SCTC, students, and collaborators listed at the beginning of this section.  We have spoken at many applied mathematics, statistics, 
 and computational science conferences and given colloquium/seminar talks to mathematics and 
-statistics departments.  Here are some highlights.  The FJH, SCTC, LJ, and LlAJR published  an 
+statistics departments.  Here are highlights.  FJH, SCTC, LJ, and LlAJR published  an 
 encyclopedia entry on adaptive Monte Carlo \cite{HicEtal18a}.  FJH co-organized the 
 \href{http://cos.iit.edu/2016-spring-research-conference/}{2016 Spring Research 
 Conference}, a long-running annual industrial statistics conference.   FJH gave an invited tutorial 
-at the \href{http://mcqmc2016.stanford.edu}{Twelfth International 
-Conference on Monte Carlo and Quasi-Monte Carlo Methods in Scientific Computing (MCQMC 
-2016)} 
-\cite{Hic17a}, a biennial conference for which he also serves on the steering committee.  FJH 
-served as a program leader for the Statistical and Applied Mathematical Sciences 
-Institute (SAMSI) 2017--18 
+at the \href{http://mcqmc2016.stanford.edu}{MCQMC 2016} 
+\cite{Hic17a}, a biennial conference for which he serves on the steering committee.  FJH 
+was a program leader for the SAMSI 2017--18 
 \href{https://www.samsi.info/programs-and-activities/year-long-research-programs/2017-18-program-quasi-monte-carlo-high-dimensional-sampling-methods-applied-mathematics-qmc/
-}{Program on Quasi-Monte Carlo and High-Dimensional Sampling Methods for Applied 
-	Mathematics (\hypertarget{SAMSIlink}{SAMSI-QMC})}.   He  gave an invited tutorial 
+}{\QMC Program (\hypertarget{SAMSIlink}{SAMSI-QMC})}.   He  gave an invited tutorial 
 	at the Opening Workshop, and led one of 
 	the working groups.  FJH received the 2016 Joseph F.\ Traub 
 	Prize for Achievement in Information-Based Complexity.
 	
 	
-The PI's leadership in the MCQMC conferences  and \SAMSIQMC is 
-	designed to bring \QMC to other areas of potential application.  One concrete example, was the 
-	collaboration between the PI, LlAJR and French collaborators working in uncertainty quantification 
-	that resulted in \cite{GilEtal16a, GilJim16b}.  Another example, is the collaboration of LlAJR with 
-	high energy physicists at Fermilab, in the Chicago suburbs, where LlAJR was using \QMC to speed 
-	up their Monte Carlo calculations.
+FJH's leadership in the MCQMC conferences  and \SAMSIQMC brings \QMC to other areas of potential application.  One concrete example, was the 
+	collaboration between FJH, LlAJR and French collaborators working in uncertainty quantification \cite{GilEtal16a, GilJim16b}.  Another example, is the collaboration of LlAJR with
+	high energy physicists at Fermilab, in the Chicago suburbs, using \QMC to speed 
+	up their calculations.
 	
-\emph{\GAIL Software.} The theoretical results of this research have been implemented in 
-\GAIL, the open source MATLAB library hosted on Github at 
-\href{http://gailgithub.github.io/GAIL_Dev/} {\nolinkurl{gailgithub.github.io/GAIL_Dev/}}. This software 
+\emph{\GAIL Software.} The results of this research have been implemented in 
+\GAIL, the open source \MATLAB library hosted on
+\href{http://gailgithub.github.io/GAIL_Dev/} {Github}. This software 
 has been implemented with input parsing, input validation, unit tests, inline documentation, and 
-demonstrations.  \GAIL makes it easier for practitioners to try our new adaptive algorithms.  With the 
-help of students, we are starting to port GAIL to Python and R.
+demonstrations.  \GAIL makes it easier for practitioners to try our new adaptive algorithms.  
+%With the help of students, we are starting to port GAIL to Python and \Rlang.
 
-\emph{Boosting the STEM Workforce.} The PI and GEF have mentored a number of 
+\emph{Boosting the STEM Workforce.} FJH, GEF, and SCTC have mentored a number of 
 research students associated with this project.  The main ones are mentioned at the beginning of 
-this section.  Female students mentored include YD, LJ, XT, and Xiaoyang Zhao (MS IIT).   There 
-have also been a 
-number of 
-undergraduate students who the PI, GEF, and SCC have mentored including more than a dozen 
-Brazilian Science Mobility Program students in the summers of 2015 and 2016, Tanner Johnson (BS 
-U 
-Minnesota, MS student at U British Columbia), Tianpei Qian (BS NUS, MS student at Stanford), 
-Tianci Zhu 
-(female, BS IIT, MS student at NYU),  Cu Hauw Hung (BS student at Biola University, applying for 
-graduate study), and Yueyi Li (female BS student at Macalester University, applying for 
-graduate study).  We have also had a few high school students join us. As part of our team, all of 
-these students conducted theoretical and/or practical research, some of which resulted in 
-publications and new features for \GAIL.  Our students have learned how to contribute to a 
-substantial, long-term software project.
+this section.  Female students mentored include YD, LJ, JL, XT, and Xiaoyang Zhao (MS 2017).   FJH, GEF, and SCTC have mentored many undergraduate students including more than a dozen 
+Brazilian Science Mobility Program students in the summers of 2015 and 2016, Noah Grudowski (BS student IIT), Cu Hauw Hung (BS Biola U, now MS student at UCLA), Tanner Johnson (BS U Minnesota, now MS student at U British Columbia), Yueyi Li (female, BS Macalester U, now MS student at Johns Hopkins), Tianpei Qian (BS NUS, now MS student at Stanford), Alexsei Sorokin (BS student IIT), Paul Wolfert (BS student Colorado Schoo of Mines), and 
+Tianci Zhu (female, now MS student at NYU).  We have also had a few high school students join us. As part of our team, all of
+these students have learned how to conduct theoretical and/or practical computational mathematics research.
 
-The PI teaches a course on Monte Carlo methods each fall.  For the past several years students 
+FJH has taught a course on Monte Carlo methods each fall.  For the past several years students 
 have been introduced to \GAIL and used it in their coursework.  \GAIL has been used to teach how 
-to 
-know how large $n$ must be for an \IIDMC or \QMC simulation to reach the desired accuracy 
+to know how large $n$ must be for an \IIDMC or \QMC simulation to reach the desired accuracy 
 requirement.  A number of student class projects have been devoted to improving \GAIL.
 
-The PI was recently appointed the director of Illinois Tech's new Center for Interdisciplinary 
-Scientific Computation.  In this position he has been fostering collaborative scientific computation 
+FJH was appointed the director of Illinois Tech's new Center for Interdisciplinary 
+Scientific Computation in 2017.  In this position he fostered collaborative scientific computation 
 research across departments by hosting matchmaking seminars and sponsoring a seed grant 
-competition.
+competition. %In 2018, FJH was appointed Vice Provost for Research.
 
 
-\section{Intellectual Merit of the Proposed Research} \label{secProposed}
+
+%%======================
+
+%%======================
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Intellectual Merit of the Proposed Research} \label{sec:Proposed}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Adaptive Algorithms for Multivariate Integration}\label{SectMultiInt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Fast Bayesian Cubature Using Higher Order Digital Nets}  \label{sec:NewBayes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The fast Bayesian cubature  described in Sect.\ \ref{sec:Bayes} \cite{RatHic19a} has been fully implemented for lattice node \QMC sampling, but not yet for the digital sequence node \QMC sampling.  Although this should work in principle, we are particularly interested in employing higher order nets with matching kernels based on Walsh functions to obtain higher order accuracy.  As is the case for lattices, the kernels need to match the nodes to ensure that the algorithm is fast enough (Goal \ref{GoalThree}).
+
+To justify the Bayesian cubature assumption that $f$ is a Gaussian process, we have begun plotting normal probability plots of suitably scaled sample function values.  However, the distribution does not follow a Gaussian.  Student $t$-processes have been proposed \cite{ShaWilGha14a}, and we will explore non-Gaussian processes in the hope that the Bayesian approach can find a more solid footing.
+
+There have been no tractability studies (see Sect.\ \ref{sec:CompEff}) yet, which we intend to do. To implement covariance kernels that yield tractable problems might require a finer structure in our covariance kernels, namely, a weight for each coordinate.  This will require us to implement a more  sophisticated optimization of the kernel hyperparameters than we have done already.
+
+\subsubsection{Generalized Error Criterion for IID Monte Carlo.}  LJ developed an adaptive \IIDMC algorithm satisfying a hybrid error criterion encompassing both absolute and relative error in her PhD thesis \cite{Jia16a}.  However, her error criterion is not as general as \eqref{generrorcrit}.  We will generalize LJ's work to 
+cover this case (Goal \ref{GoalFour}).  Recently \cite{KunEtal19a} use the median of means method to derive an adaptive \IIDMC cubature satisfying \eqref{AlgErr}.  We think that there method might be more flexible than  LJ's, which relied on Berry-Eseen inequalities.  We will explore that route.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Integration with Unbounded Dimension} 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Taking the expected value of a function of the solution to a stochastic differential equation(SDE)---as is required in finance calculations---takes the form of an infinite dimensional integral, namely,
+\[
+\SOL(f) = \lim_{d \to \infty} \SOL_d(f_d), \quad \SOL_d(f_d):= \int_{\reals^d} f_d(\bx) \, \prod_{r=1}^{d} \varrho(x_r) \, \dif \bx, 
+\]
+where $f_d$ is an  approximation to $f$ that depends only on the first $d$ variables, and $\varrho$ 
+is a probability density function.  In the application described above $d$ reperesents the number of time steps in the discretized SDE.
+
+Approximating $\SOL(f)$ by $\SOL_{d_L}(f_{d_L})$ for some large $d_L$ incurs the expensive, typical $\Order(d_L)$ cost per function value.  Two alternative methods for approximating $S(f)$ are the multi-level method (MLM) \cite{Gil15a} and the  multivariate 
+decomposition method (MDM) \cite{Was13b}.  (The MLM for cubature is inspired by the MLM 
+for solving partial differential equations, but is quite different.) The function $f$
+is decomposed into pieces that only depend on the a subset of the coordinates (see 
+\cite{WanHic00b} for example):  
+\begin{equation*}
+f(\bx) = \sum_{\fu \subset \naturals, \abs{\fu} < \infty} f_{\fu}(\bx) = \sum_{\ell 
+=1}^\infty [f_{d_\ell}(\bx) - f_{d_{\ell-1}}(\bx)], \qquad  f_d:= \sum_{\fu \subseteq \{1, 
+\ldots, d\}} f_\fu, \quad f_0:= 0.
+\end{equation*}
+Here $\abs{\fu}$ denotes the cardinality of the set $\fu$.  Each $f_{\fu}$ depends only 
+on the coordinates with indices in $\fu$.  If $\APP_{n,d}$ represents a cubature 
+using $n$ nodes on the $d$-dimensional domain, then the MLM and MDM cubatures 
+for approximating $\SOL(f)$ are 
+\begin{gather*}
+\APP^{\textup{MLM}}_{L,\bn,\bd}(f) = \sum_{\ell=1}^L \APP_{n_l,d_l}(f_{d_\ell} - f_{d_{\ell-1}}), \qquad 
+\bn = (n_\ell)_{\ell = 1}^L, \quad \bd = (d_\ell)_{\ell = 1}^L, \\
+\APP^{\textup{MDM}}_{\fU,\bn,\bd}(f) = \sum_{\fu \in \fU} \APP_{n_{\fu},\abs{\fu}}(f_{u}), \qquad 
+\bn = (n_\fu)_{\fu \in \fU}, \quad \bd = (d_\fu)_{\fu \in \fU}, \quad  \\
+\cost(f,\APP^{\textup{MLM}}_{L,\bn,\bd}) = \Order\left (\sum_{\ell=1}^L d_\ell 
+n_\ell \right), \qquad \cost(f,A^{\textup{MDM}}_{\fU,\bn,\bd}) = \Order\left (\sum_{\fu \in \fU} d_\fu 
+n_\fu\right)
+\end{gather*}
+The advantage of these methods is that typically large dimensions, $d_\ell$ or $d_{\fu}$, require only small sample sizes, $n_\ell$ or $n_\fu$.  This keeps the total cost down and helps us meet Goal \ref{GoalThree}.
+
+The stopping criteria for MLMs and MDMs are based on heuristics.  We will use the lessons learned in our previous research, summarized in  Sects.\ \ref{sec:QMC} and \ref{sec:Bayes} to derive rigorous stopping criteria for MLMs and MDMs. These stopping criteria will include not only the choice of sample sizes but suitable data-driven decompositions of the infinite dimensional integrand.  FJH's familiarity with the MLM \cite{HicMGRitNiu09a, NiuHic09a, 
+NiuHic09b} will facilitate this task.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Adaptive Multivariate Function Approximation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Tractability} \label{sec:tract}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We will study the tractability of the general linear problems studied by YD, FJH, and LLAJR in \cite{DinHic20a} (see Sect.\ \ref{sec:PrevFunAppx}).  Tensor product spaces will be assumed.  FJH has contributed to the tractability literature for balls of input functions
+\cite{FasHicWoz12b,WanHic00b,HicWoz00b,HicSloWas03c,HicSloWas03b,HicSloWas03a,HicSloWas03e,HicWasWoz06a,YueHic04a,YueHic05a,ZhoHic15a}.  This will help us complete this study for cones of input functions (Goal \ref{GoalThree}).
+
+The tractability literature tends to use the same techniques applied to many different cases:  strong tractability, polynomial tractability, quasi-polynomial tractability, weak tractability, algebraic tractability, and exponential tractability.  We aim to develop a more unified treatment that would reduce the number of proofs required. Not only would this apply to the case of balls of input functions but also the case of cones of input functions, which particularly interests us.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Function approximation using matching kernels and nodes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The Bayesian framework may also be used for function approximation as well as cubature.  This approach is known as kriging or Gaussian process modeling in the statistics literature \cite{RasWil06a,Ste99} and is known as meshfree/radial basis function 
+approximation in the numerical analysis literature \cite{Fas07a,FasMcC15a,Wen05a}.  We will employ the \QMC node sequences with their well-matched kernels for adaptive multivariate function 
+approximation, as we have done and plan to do for cubature (Sects.\ \ref{sec:Bayes} and \ref{sec:NewBayes}).  Because we are using matching kernels, we will reduce the matrix operations costing that typically cost $\Order(n^3)$ to only $\Order(n \log(n))$.  We will also explore some of the designer kernels developed by GEF in our previous NSF-funded  project (Sect.\ \ref{sec:PrevFunAppx}).  Because the theoretical error bounds \eqref{errorBd} for function approximation using \QMC node sequences are under-developed, there is much to be done.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Problems with Expensive Function Values} 
+\label{sec:Expensive}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+When the cost of one $f(\bx)$ takes hours or days, as in a climate model or simulating the performance of a huge financial portfolio, it helps to have surrogates models: approximations to $f$ that are cheap to evaluate.  For these situations---mentioned in Sect.\ \ref{sec:CompEff}---the cost of manipulating $n^*$ data, say $\Order(n^{*p})$ is unimportant compared to the cost of acquiring $n$ data, $\$_d(f)n$.  Perhaps, only $\Order(d)$ function values can be afforded.  This problem has been discussed by one of the \SAMSIQMC working groups led by FJH over the last year and led to some preliminary thoughts.  
+
+Consider the situation in \eqref{serForm} with $r = \infty$ and $q=1$.  The function approximation problem means $\SOL(f) = f$ and $v_{\bk} = \SOL(u_{\bk}) = u_{\bk}$.  The optimal fixed sample size approximation assuming that we know the Fourier coefficients is obtained via H\"older's inequality:
+\begin{gather*}
+    \APP(f,n) = \sum_{i=1}^n \hf(\bk_i) u_{\bk_i}, \qquad
+    \norm[\calg]{\SOL(f) - \APP(f,n)} %= \bignorm[1]{\bigl(\hf(\bk_i)\bigr)_{i=n+1}^\infty } 
+    \le \norm[1] {\bigl(\lambda_{\bk_i}\bigr)_{i=n+1}^\infty } \norm[\calf]{f}.
+\end{gather*}
+We may then use the model Algorithm \ref{ConeAlg} to obtain an adaptive algorithm.  
+
+One question is how to choose the $\lambda_{\bk}$.  Appropriating the principles of effect sparsity, effect hierarchy, and effect heredity from the statistical experimental design literature \cite{WuHam00}, and borrowing the concept of coordinate weights from the tractability literature \cite{DicEtal14a}, our \SAMSIQMC working group proposed tensor product spaces with the following weights:
+\[
+u_{\bk} = \phi_{k_1} \cdots \phi_{k_d}, \qquad \lambda_{\bk} = \prod_{\substack{\ell = 1 \\ k_{\ell} > 0 }}^d \gamma_{\ell}s_{k_\ell} 
+\qquad \begin{cases} \phi_k = \text{your favorite polynomial basis}, \\
+\gamma_{\ell} = \text{coordinate importance}, \\
+s_{k} = \text{smoothness degree}
+\end{cases}
+\]
+
+As proof of concept of this approach, we used a pilot sample of size $\Order(d)$ that involved exploring each coordinate direction, inferring the coordinate weights and the smoothness weights, and then following the procedure of Algorithm \ref{ConeAlg}.  Instead of assuming that we knew the Fourier coefficients, we approximated them by polynomial interpolation.  We chose a polynomial basis for which $\norm[\infty]{\phi_k} = 1$, so that $\norm[\infty]{f - \ALG(f,\varepsilon)} \le \norm[\calg]{f - \ALG(f,\varepsilon)}$.  We tried this procedure on a test function of \cite{ChenSan10a} from \cite{VirLib17a}.  The results are in Fig.\ \ref{ChengSanFig}
+
+\begin{figure}
+    \centering
+    \includegraphics[height = 10ex]{}
+    \caption{Pilot function approximation algorithm for $\varepsilon$ ranging from $0.001$ to $0.1$}
+    \label{fig:my_label}
+\end{figure}
+
+The previous two subsections have considered the situation where the time cost of a function value, 
+$f(\bx)$, is comparable to the cost of a floating point operation, or at worst, the cost of $d$ floating 
+point 
+operations, where $d$ is the dimension.  In this section we consider problems where the time cost 
+of a function value is more expensive than the cost of $n^p$ floating point operations for any 
+practical $p$.  A climate model may take hours or days to complete one run.  A simulation of the 
+future performance of a financial portfolio may take hours.  The outputs from simulations like these 
+depend on parameters, $\bx \in \reals^d$, whose values are uncertain or whose effect 
+on the output, $f(\bx)$ one needs to understand.
+
+We want to know under what situations one can integrate or approximate a function using only
+$\Order(d)$ function values, because this is the minimum number required to understand how each 
+scalar input affects the output.  Furthermore, we want to develop adaptive algorithms for function 
+approximations.  These surrogate models will facilitate cheap ``what-if'' explorations. 
+
+The three-volume series of monographs \cite{NovWoz08a,NovWoz10a,NovWoz12a} summarizes a 
+huge body of work on the \emph{tractability} of integration and function approximation 
+problems, essentially, under what conditions the computational cost of satisfying \eqref{errorcrit} is 
+$\Order(d^q \varepsilon^{-p})$ as $d \to \infty$.  We want $q=1$.  FJH has contributed to this 
+literature 
+\cite{FasHicWoz12b,HicSloWas03a,HicSloWas03b,HicSloWas03c,HicSloWas03e,HicWasWoz06a,HicWoz00b,WanHic00b,YueHic04a,YueHic05a,ZhoHic15a}.
+  It is 
+common to consider weighted tensor product 
+spaces of input functions, such as the following Hilbert space with the decomposition notation 
+adopted 
+in Sect.\ \ref{SectMultiProb}:
+\begin{equation*}
+\calf := \left\{ f : [0,1]^d \to \reals \, \Big \vert \norm[\calf]{f}^2 := \!\!\!\sum_{\fu \subseteq \{1, 
+\ldots, d\}} 
+\frac{1}{\gamma_{\fu}^2}\int_{[0,1]^d}\abs{\frac{\partial^{\abs{\fu}}f_{\fu}}{\partial \bx_\fu}(\bx_u)}^2 
+\,  
+\dif \bx
+\right\}.
+\end{equation*}
+The coordinate weights, $\bigl(\gamma_{\fu} \bigr)_{\fu \subseteq \{1, \ldots, d\}}$, indicate the 
+importance of the subsets of coordinate indices.  The smaller $\gamma_{\fu}$ is, the less influential 
+$f_\fu(\bx)$ is assumed to be on $f(\bx)$.  In other words, for $f$ with moderate sized norm, 
+$f_\fu$ 
+must be small if $\gamma_{\fu}$ is small. The literature cited above provides necessary and 
+sufficient conditions 
+guaranteeing that integration and function approximation are tractable for weighted spaces like the 
+one above.  For product weights, $\gamma_{\fu} = \prod_{r \in \fu} \gamma_r$, tractability is 
+guaranteed  
+if $\gamma_{r} \to 0$ quickly enough as $r \to \infty$.  Algorithms can be constructed whose 
+computational cost depend reasonably on dimension.
+
+For some applications one knows how to order the coordinates in roughly order of decreasing 
+importance, but for the applications we have in mind, such an ordering does not exist.  It must be 
+discovered by evaluating the function.  Only then, can the 
+tractability literature can be applied only after an initial probe of the function indicates 
+which coordinates are more important.
+
+Two of the \SAMSIQMC working groups that FJH belongs to are exploring how to
+place an initial set 
+of nodes evenly to uncover the important coordinate directions of $f$, followed by node 
+placement that favors the important 
+coordinate directions to approximate $f$ well.  We expect the existing literature plus the new ideas 
+arising from the working groups will set us on a path to solving this problem.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Higher Order Adaptive Algorithms for Univariate Problems}\label{SectUniProb}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\emph{A Theoretically Justified Alternative to MATLAB's 
+\emph{A Theoretically Justified Alternative to \MATLAB's 
 \textup{\texttt{integral.m}}.} 
-MATLAB's premier adaptive quadrature algorithm is based on composite high order Gaussian 
+\MATLAB's premier adaptive quadrature algorithm is based on composite high order Gaussian 
 quadrature rules, so it converges much faster than our adaptive trapezoidal rule (Algorithm 
 \ref{Trapalg}). However, as noted in Sect.\ \ref{TrapIllSect} and illustrated in Fig.\ 
 \ref{quadfailfig}(c), 
 \texttt{integral.m} can fail even for reasonable integrands, whereas our Algorithm 
 \ref{Trapalg} will always succeed for reasonable integrands. The adaptive quadrature algorithms in 
 the other popular scientific libraries, 
-such as the NAG library, GSL, and SciPy, have the same defect as MATLAB's \texttt{integral.m}.  
+such as \NAG, \GSL, and SciPy, have the same defect as \MATLAB's \texttt{integral.m}.  
 
 YZ is already working on a locally adaptive Simpson's rule, following the ideas in Sect.\ 
 \ref{localadpatsec}.  Our next step will be a 
-locally adaptive high order algorithm that is competitive with MATLAB's \texttt{integral.m} but that 
+locally adaptive high order algorithm that is competitive with \MATLAB's \texttt{integral.m} but that 
 has 
 rigorous data-driven error bounds that will make it succeed for all reasonable 
 integrands, i.e., all functions in a cone, $\cc$, to be defined.  Our goal is to provide replacement for 
-MATLAB's \texttt{integral.m} and similar algorithms.  
+\MATLAB's \texttt{integral.m} and similar algorithms.  
 
 Rather than use Gauss quadrature rules, we will likely use composite Clenshaw-Curtis quadrature, 
 which is based on integrating a Chebyshev polynomial approximation to the integrand on each 
@@ -932,215 +1059,32 @@ not arise with integration and
 optimization.  A locally adaptive cubic spline approximation with theoretical justification may be 
 possible.
 
-\emph{Chebfun.}
-Chebfun \cite{TrefEtal17a} is an elegant, popular software library that approximates functions by 
+\emph{\Chebfun.}
+\Chebfun \cite{TrefEtal17a} is an elegant, popular software library that approximates functions by 
 Chebyshev polynomials of 
 sufficiently high degree.  These polynomials can then be used for integration, optimization, 
-root-finding, and other numerical computations.  Chebfun is mainly a globally adaptive algorithm in 
+root-finding, and other numerical computations.  \Chebfun is mainly a globally adaptive algorithm in 
 that the node pattern is fixed, but the number of nodes, which corresponds to 
-the the degree of the polynomial is chosen adaptively.  Although Chebfun claims to perform 
+the the degree of the polynomial is chosen adaptively.  Although \Chebfun claims to perform 
 computations 
 to nearly machine precision, there are no theoretical guarantees.  
 
-We will provide a theoretical basis for Chebfun by defining a cone of reasonable functions, 
-$\cc$, for which Chebfun must give the correct answer.  This will be done in a similar manner as for 
+We will provide a theoretical basis for \Chebfun by defining a cone of reasonable functions, 
+$\cc$, for which \Chebfun must give the correct answer.  This will be done in a similar manner as for 
 \QMC quadrature in Sect.\ \ref{QMCsec}.  The cone $\cc$ will consist of functions 
 whose Chebyshev series does not decay erratically for terms with polynomial degree greater than 
 some minimum value.  Functions lying outside this cone, $\cc$, will be spiky functions.   Our 
-theoretical foundation for Chebfun will explain why it may or may not succeed as claimed.
+theoretical foundation for \Chebfun will explain why it may or may not succeed as claimed.
 
-\subsection{Adaptive Algorithms for Multivariate Problems}\label{SectMultiProb}
-
-\emph{Integration over domains with unbounded dimension.} The next natural challenge for 
-multivariate integration is to extend our 
-globally adaptive \QMC algorithms described in Sect.\ \ref{QMCsec} to situations with infinite 
-dimension:
-\[
-S(f) = \lim_{d \to \infty} S_d(f_d), \quad S_d(f_d):= \int_{\tOmega^d} f_d(\bx) \, \varrho_d(\bx) \, \dif 
-\bx, \quad \tvarrho_d(\bx) : = \prod_{r=1}^{d} \varrho(x_r),
-\]
-where $f_d$ is an  approximation to $f$ that depends only on the first $d$ variables, and $\tvarrho$ 
-is a probability density function on $\tOmega$.  Such 
-problems arise as the expected value of a functional of the solution of a 
-stochastic differential equation (SDE) using $d$ time steps.  
-
-One way to approximate $S(f)$ is to approximate the finite 
-dimensional integral $S_{d_L}(f_{d_L})$ for some large dimension, $d_L$.  However, the cost of 
-evaluating $f_{d_L}(x_{d_L})$ is often proportional to $d_L$.  If $A_{n,d}$ represents an \IIDMC, 
-\QMC or other cubature 
-using $n$ nodes on the $d$-dimensional domain,  the true cost of approximating $S(f)$ by an 
-algorithm using 
-$n_L$ nodes is
-$\Order(d_L n_L)$.
-
-Two alternative methods for approximating $S(f)$ are the multi-level method (MLM) \cite{Gil15a} 
-and the 
-multivariate 
-decomposition method (MDM) \cite{Was13b}.  (Note: the MLM for cubature is inspired by the MLM 
-for solving partial differential equations, but is quite different.) The function $f$, which depends on 
-$\bx=(x_1, x_2, 
-\ldots) \in 
-\tOmega^\naturals$, 
-is decomposed into pieces that only depend on the a subset of the coordinates (see 
-\cite{WanHic00b} for example):  
-\begin{equation*}
-f(\bx) = \sum_{\fu \subset \naturals, \abs{\fu} < \infty} f_{\fu}(\bx) = \sum_{\ell 
-=1}^\infty [f_{d_\ell}(\bx) - f_{d_{\ell-1}}(\bx)], \qquad  f_d:= \sum_{\fu \subseteq \{1, 
-\ldots, d\}} f_\fu, \quad f_0:= 0.
-\end{equation*}
-Here $\abs{\fu}$ denotes the cardinality of the set $\fu$.  This decomposition is not unique and may 
-be based on convenience.  Each $f_{\fu}$ depends 
-only 
-on the coordinates with indices in $\fu$.  If $A_{n,d}$ represents a cubature 
-using $n$ nodes on the $d$-dimensional domain, $\tOmega^d$, then the MLM and MDM cubatures 
-for 
-approximating $S(f)$ are \cite{Gil15a, Was13b}
-\begin{gather*}
-A^{\textup{MLM}}_{\bn,\bd}(f) = \sum_{\ell=1}^L A_{n_l,d_l}(f_{d_\ell} - f_{d_{\ell-1}}), \quad \bn = 
-(n_\ell)_{\ell = 1}^L, \ \bd = 
-(d_\ell)_{\ell = 1}^L, \quad \cost(f,A^{\textup{MLM}}_{\bn,\bd}) = \Order\left (\sum_{\ell=1}^L d_\ell 
-n_\ell \right), \\
-A^{\textup{MDM}}_{\bn,\fU}(f) = \sum_{\fu \in \fU} A_{n_{\fu},\abs{\fu}}(f_{u}), \quad \bn = 
-(n_\fu)_{\fu \in \fU}, \ \bd = 
-(d_\fu)_{\fu \in \fU}, \quad \cost(f,A^{\textup{MDM}}_{\bn,\bd}) = \Order\left (\sum_{\fu \in \fU} d_\fu 
-n_\fu\right).
-\end{gather*}
-At first glance, these costs may look greater than the $\Order(d_L n_L)$ cost of the single-level 
-cubature 
-$A_{n_L,d_L}(f)$.  However, the MLM and MDM are actually more 
-economical for commonly occurring integrals when the goal is meeting a fixed error tolerance.   The 
-low dimensional cubatures (small $d_\ell$ or $\abs{\fu}$) require 
-larger numbers of nodes ($n_\ell$ or $n_{\fu}$),  
-but the higher dimensional cubatures (large $d_\ell$ or $\abs{\fu}$) actually require fewer numbers 
-of nodes.  In contrast, the single-level cubature requires a large number of nodes for a high 
-dimension.
-
-Adaptive MLMs constructed so far are based on heuristics.  The MDM is still in the early stages of 
-practical application.  In theory, for nice enough integrands the costs of both methods for satisfying 
-\eqref{errorcrit} are proportional to the costs of the finite-dimensional cubatures used, i.e., 
-$\Order(\varepsilon^{-2})$ for \IIDMC and $\Order(\varepsilon^{-1+\delta})$ for \QMC.  The 
-challenge 
-in constructing a 
-\emph{theoretically sound} adaptive algorithm is determining good choices 
-of the dimension vector $\bd$ for MLM or the set of sets of important coordinate directions, $\fU$, 
-for MDM.
-These must be chosen so that (i) the error due to ignoring some pieces of the integrand is negligible 
-and (ii) the total cost of the cubatures is small. 
-Once  $\bd$ or $\fU$ are fixed, our adaptive cubatures in Sect.\ \ref{QMCsec} can be used to 
-determine the vector $\bn$ needed to meet the error criterion.  We propose to develop sound 
-adaptive cubatures $\fA^{MLM}$ and $\fA^{MDM}$ for infinite dimensional integration satisfying the 
-error criteria \eqref{errorcrit} and 
-\eqref{generrorcrit}.  The PI's familiarity with the MLM \cite{HicMGRitNiu09a, NiuHic09a, 
-NiuHic09b} will facilitate this task.
-
-\emph{Generalized Error Criterion for \IIDMC.}  LJ developed a theoretically justified \IIDMC 
-algorithm satisfying a hybrid error criterion encompassing both absolute and relative error in her PhD 
-thesis \cite{Jia16a}.  However, her error criterion is not as general as \eqref{generrorcrit} in that it 
-does not allow the desired answer to be a function of several integrals.  We will generalize LJ's work 
-to 
-cover this case.  There are challenges working in this setting because the algorithm is random and 
-so the error criterion should be satisfied with some confidence level $1- \alpha$.  The eventual 
-$n$ required is determined sequentially by increasing it and then re-determining whether the 
-generalized 
-error tolerance---which depends on the unknown answer---is met.  Each step in 
-the sequential algorithm must proceed 
-with a 
-higher confidence so that the target confidence level can be reached.
-
-We  do not yet have a bound on the computational complexity in this randomized setting for 
-multivariate integration.  We are discussing this problem with collaborators and hope to discover the 
-answer.
-
-\emph{Bayesian cubature.} The ideas being worked out by JR for his PhD thesis as described in 
-Sect.\ \ref{Bayessect} are complete for the lattice node \QMC sampling, but not yet for the digital 
-sequence node \QMC sampling.  In particular, we expect that smoother kernels and higher order 
-nets 
-will lead to higher order adaptive cubature methods.
-
-
-\emph{Function approximation using matching kernels and sampling schemes.}
-The Bayesian cubature framework may also be adapted to function approximation.  This approach is 
-known as kriging or Gaussian process modeling in the statistics literature \cite{RasWil06a,Ste99} 
-and is known as meshfree/radial basis function 
-approximation in the 
-numerical analysis literature \cite{Fas07a,FasMcC15a,Wen05a}.  Although the theory is 
-well-developed, the computational cost of operations involving the $n \times n$ Gram matrix, 
-$\mC$, mentioned in Sect.\ \ref{Bayessect} can be prohibitive.  
-
-We will employ the \QMC node sequences with their well-matched kernels for multivariate function 
-approximation, similar to what  we 
-have already found successful for cubature.  We will 
-develop theoretically justified adaptive algorithms and bounds on their computational costs.  
-Because the theory of \QMC node sequences for function approximation using kernels is 
-under-developed, there 
-is much work to be done.
-
-\subsection{Adaptive Algorithms for Problems with Expensive Function Values} 
-\label{SectExpensive}
-The previous two subsections have considered the situation where the time cost of a function value, 
-$f(\bx)$, is comparable to the cost of a floating point operation, or at worst, the cost of $d$ floating 
-point 
-operations, where $d$ is the dimension.  In this section we consider problems where the time cost 
-of a function value is more expensive than the cost of $n^p$ floating point operations for any 
-practical $p$.  A climate model may take hours or days to complete one run.  A simulation of the 
-future performance of a financial portfolio may take hours.  The outputs from simulations like these 
-depend on parameters, $\bx \in \reals^d$, whose values are uncertain or whose effect 
-on the output, $f(\bx)$ one needs to understand.
-
-We want to know under what situations one can integrate or approximate a function using only
-$\Order(d)$ function values, because this is the minimum number required to understand how each 
-scalar input affects the output.  Furthermore, we want to develop adaptive algorithms for function 
-approximations.  These surrogate models will facilitate cheap ``what-if'' explorations. 
-
-The three-volume series of monographs \cite{NovWoz08a,NovWoz10a,NovWoz12a} summarizes a 
-huge body of work on the \emph{tractability} of integration and function approximation 
-problems, essentially, under what conditions the computational cost of satisfying \eqref{errorcrit} is 
-$\Order(d^q \varepsilon^{-p})$ as $d \to \infty$.  We want $q=1$.  The PI has contributed to this 
-literature 
-\cite{FasHicWoz12b,HicSloWas03a,HicSloWas03b,HicSloWas03c,HicSloWas03e,HicWasWoz06a,HicWoz00b,WanHic00b,YueHic04a,YueHic05a,ZhoHic15a}.
-  It is 
-common to consider weighted tensor product 
-spaces of input functions, such as the following Hilbert space with the decomposition notation 
-adopted 
-in Sect.\ \ref{SectMultiProb}:
-\begin{equation*}
-\calf := \left\{ f : [0,1]^d \to \reals \, \Big \vert \norm[\calf]{f}^2 := \!\!\!\sum_{\fu \subseteq \{1, 
-\ldots, d\}} 
-\frac{1}{\gamma_{\fu}^2}\int_{[0,1]^d}\abs{\frac{\partial^{\abs{\fu}}f_{\fu}}{\partial \bx_\fu}(\bx_u)}^2 
-\,  
-\dif \bx
-\right\}.
-\end{equation*}
-The coordinate weights, $\bigl(\gamma_{\fu} \bigr)_{\fu \subseteq \{1, \ldots, d\}}$, indicate the 
-importance of the subsets of coordinate indices.  The smaller $\gamma_{\fu}$ is, the less influential 
-$f_\fu(\bx)$ is assumed to be on $f(\bx)$.  In other words, for $f$ with moderate sized norm, 
-$f_\fu$ 
-must be small if $\gamma_{\fu}$ is small. The literature cited above provides necessary and 
-sufficient conditions 
-guaranteeing that integration and function approximation are tractable for weighted spaces like the 
-one above.  For product weights, $\gamma_{\fu} = \prod_{r \in \fu} \gamma_r$, tractability is 
-guaranteed  
-if $\gamma_{r} \to 0$ quickly enough as $r \to \infty$.  Algorithms can be constructed whose 
-computational cost depend reasonably on dimension.
-
-For some applications one knows how to order the coordinates in roughly order of decreasing 
-importance, but for the applications we have in mind, such an ordering does not exist.  It must be 
-discovered by evaluating the function.  Only then, can the 
-tractability literature can be applied only after an initial probe of the function indicates 
-which coordinates are more important.
-
-Two of the \SAMSIQMC working groups that the PI belongs to are exploring how to
-place an initial set 
-of nodes evenly to uncover the important coordinate directions of $f$, followed by node 
-placement that favors the important 
-coordinate directions to approximate $f$ well.  We expect the existing literature plus the new ideas 
-arising from the working groups will set us on a path to solving this problem.
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Broader Impacts of the Proposed Research}\label{SectBroad}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Contributions to Training, Mentoring and Other Human Resource Developments}
-The PI runs a weekly research group meeting comprised of long-term and short-term student 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+FJH runs a weekly research group meeting comprised of long-term and short-term student 
 collaborators, 
 visitors, the curious, and special guests.  Ongoing work in early or polished stages is shared.  Papers 
 of other authors are presented.  Mentoring takes place during these meetings as well as individually.
@@ -1176,7 +1120,7 @@ working in marketing analytics.  All of them are developing and testing quantita
 and computationally intensive models.
 
 \emph{Supervising Visitors.}
-Both the PI and the Co-PI have strong connections to East Asia.  We have hosted several long-term 
+Both FJH and SCTC have strong connections to East Asia.  We have hosted several long-term 
 self-funded visitors in the past and plan to do so in the future.
 
 \emph{Giving Tutorials and Invited Lectures.}
@@ -1185,14 +1129,16 @@ school to graduate school. These encourage students to enter STEM and encourage 
 to engage in research.
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Contributions to Resources in Research, Education and the Broader Society} 
 \label{BroaderTwoSec}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The research we propose straddles mathematics, statistics, theoretical computer science, and 
 application 
 areas.  The two PIs have complementary strengths that facilitate this interdisciplinary research.  FJH 
 has expertise in \QMC methods, kernel-based methods, information-based complexity 
-theory, and experimental design. SCC has expertise in computer science and applications.  Our 
+theory, and experimental design. SCTC has expertise in computer science and applications.  Our 
 expertise provides both an obligation and an opportunity to interact with a number of diverse 
 communities. We envision the following contributions:
 
@@ -1214,7 +1160,7 @@ this involves quadratures and cubatures.
 This project touches on topics that are of interest to the statistics community: kriging, Monte Carlo 
 methods, and design of experiments.  We have and will continue to engage the statistics community 
 by speaking a their conferences and departmental colloquia.  For example, the PI visited the 
-statistics group at Georgia Tech earlier this year, and the PI is also engaging statisticians and 
+statistics group at Georgia Tech earlier this year, and FJH is also engaging statisticians and 
 applied mathematicians through the \SAMSIQMC program.
 
 \emph{Organizing and Presenting at Conferences.}
@@ -1226,7 +1172,7 @@ speak at such conferences, which will give our results a prominent hearing. We w
 organize specialized conferences or minisymposia within larger conferences.
 
 \emph{Writing Survey Papers.}
-The PIs will continue their practice of writing tutorial, survey, and encyclopedia articles.  These will 
+FJH and SCTC will continue their practice of writing tutorial, survey, and encyclopedia articles.  These will 
 make our findings accessible to a wider audience.
 
 \emph{Refreshing Course Syllabi.}
@@ -1238,7 +1184,7 @@ As noted in Sect.\ \ref{TrapIllSect}, current texts propagate poor practices for
 adaptive quadrature.  We will urge numerical analysis textbook authors and educators to change the 
 way that error estimation is taught based on our recent and proposed work.  These ideas will also 
 enter our more traditional numerical analysis courses such as MATH 350 (Intro to Computational 
-Math).  SCC and FJH will continue to develop MATH 573 (Reliable Mathematical Software) as a 
+Math).  SCTC and FJH will continue to develop MATH 573 (Reliable Mathematical Software) as a 
 valuable course for our own students and an example that we wish to propagate to other 
 universities.
 
@@ -1248,9 +1194,9 @@ will
 serve the wider community that relies on numerical approximation and integration algorithms.  It will 
 also demonstrate how adaptive algorithms ought to be implemented, which we hope will inspire and 
 inform those working on adaptive algorithms for other mathematical problems.  We will involve 
-students in porting \GAIL to other platforms, such as Python, R, and Julia.  We expect our 
+students in porting \GAIL to other platforms, such as Python, \Rlang, and \Julia.  We expect our 
 new algorithms to be incorporated into widely used numerical packages, as was done for our 
-algorithm in \cite{HonHic00a} by \Matlab \citep{MAT9.5} and NAG \citep{NAG23}.  We will continue 
+algorithm in \cite{HonHic00a} by \MATLAB and \NAG.  We will continue 
 to discuss with software developers about good practices for adaptive algorithms.
 
 \emph{New Applications of \QMC.}
@@ -1331,7 +1277,7 @@ Figure \ref{quadfailfig}(b) depicts a reasonable integrand for which $\herr_n(f)
 \ref{quadfailfig}(c) depicts a reasonable integrand for which the error estimate, $\herr_n(f)$, 
 used 
 by  
-MATLAB's adaptive quadrature 
+\MATLAB's adaptive quadrature 
 \texttt{integral} \cite{MAT9.5} fails.  
 
 \begin{figure}[h]
@@ -1490,10 +1436,10 @@ not exceed the error tolerance, $\varepsilon$.
 	whose 
 	integral is nonzero. Our algorithm is asymptotically optimal.
 	
-	\item[The definition of adaptive algorithm includes parameters] MATLAB's 
+	\item[The definition of adaptive algorithm includes parameters] \MATLAB's 
 	\texttt{integral} \cite{MAT9.5}
 	assumes an initial number of nodes and a maximum sample size.  
-	%Chebfun \cite{TrefEtal17a}, a numerical library that adaptively integrates functions via 
+	%\Chebfun \cite{TrefEtal17a}, a numerical library that adaptively integrates functions via 
 	%Chebyshev polynomial approximations assumes default values for these parameters as well as 
 	%others.
 	These parameters are set to be reasonable for most situations, but may be modified if 
@@ -1593,8 +1539,8 @@ adaptive algorithm.
 Adaptive algorithms require error bounds, $\herr_n(f)$, computed from function data, 
 $\{(\bx_i,f(\bx_i))\}_{i=1}^n$, and not from a priori knowledge of the (semi-)norm of the function.  
 Common adaptive algorithms are inadequate because there is no theory justifying
-$\oerr_n(f)  \le \herr_n(f)$.  MATLAB's \texttt{integral} bases its $\herr_n(f)$ on 
-the comparison of two Gaussian quadratures.  Chebfun truncates its Chebyshev polynomial 
+$\oerr_n(f)  \le \herr_n(f)$.  \MATLAB's \texttt{integral} bases its $\herr_n(f)$ on 
+the comparison of two Gaussian quadratures.  \Chebfun truncates its Chebyshev polynomial 
 approximation to $f$ when the observed high order Chebyshev coefficients reach round-off 
 error, in spite of the possibility that even higher order coefficients could be significant.
 
