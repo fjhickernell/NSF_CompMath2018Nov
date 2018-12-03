@@ -402,7 +402,7 @@ However, for integration and function approximation, $\calf$ is a space of funct
 The demand for algorithms satisfying Goal \ref{GoalOne} is evidenced by the automatic quadrature, function approximation, optimization, and root-finding algorithms found in general purpose software.  Examples include \hypertarget{MATLABlink}{MATLAB}'s \cite{MAT9.5} native \texttt{integral}, \texttt{fminbnd}, and \texttt{fzero} algorithms.  The \hypertarget{Chebfunlink}{Chebfun} \cite{TrefEtal17a} \MATLAB library adaptively approximates $f$ by Chebyshev polynomials and then overloads \MATLAB's \texttt{sum}, \texttt{cumsum}, \texttt{min}, and \texttt{roots} functions to approximate definite integrals, indefinite integrals, minima, and zeros of $f$.  The  Numerical Algorithms Group
 (\hypertarget{NAGlink}{NAG}) library \citep{NAG23}, the Python scientific library \hypertarget{SciPylink}{SciPy} \cite{SCIPY}, and the GNU Scientific Library (\hypertarget{GSLlink}{GSL}) \cite{GSL} have automatic quadrature and cubature. 
 
-All of these algorithms, and others like them, fail to satisfy the error tolerance if the input function is sufficiently spiky.  Figure \ref{quadfailfig}a) depicts a spiky integrand that fools \MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  Any algorithm relying on function values may be fooled by sufficiently spiky functions.  However, the algorithms mentioned above \emph{have no theory} that specifies the set of input functions, $\calc$, for which they succeed.
+All of these algorithms, and others like them, fail to satisfy the error tolerance if the input function is sufficiently spiky.  Fig.\ \ref{quadfailfig}a) depicts a spiky integrand that fools \MATLAB's \texttt{integral}.  Although $\SOL(f) = \int_0^1 f(x) \, \dif x = 1$, $\ALG(f,1\text{E}{-14}) = \texttt{integral}(f,1\text{E}{-14}) = 0$, and the error of $1$ is significantly greater than the tolerance of $1\text{E}{-14}$.  Any algorithm relying on function values may be fooled by sufficiently spiky functions.  However, the algorithms mentioned above \emph{have no theory} that specifies the set of input functions, $\calc$, for which they succeed.
 
 A data-driven error bound, \eqref{dataErrBd}, which is needed for Goal 1, requires $\calc$ to exclude spiky functions.  This is why $\calc$ is a strict subset of the input space $\calf$.
 
@@ -412,7 +412,7 @@ Spiky inputs are not the only source of failure for adaptive quadratures.
 Lyness \cite[p.\ 69]{Lyn83} over 30 years ago.  In fact, Lyness claims that automatic quadratures employing this common type of error estimate are ``\ldots likely to be unreliable in a significant proportion of the problems it faces 
 	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set
 	of apparently reasonable problems this will happen.''
-Figure \label{quadfailfig}b) displays a fluky integrand for which \MATLAB's \texttt{integral} fails to meet the specified error tolerance.  It does not fail because of flucuations of the integrand between the nodes.  Rather it fails because the two Gauss quadratures give the same (wrong) answer.  Other adaptive quadratures fail for the same reason.  Because a heuristic stopping criterion is used, there is no theory to explain which integrands may cause the algorithms to fail.  In contrast, the adaptive quadrature developed by the FJH and collaborators \cite{HicEtal14b, Zha18a}, which follows the procedure described above and is highlighted in Sect.\ \ref{sec:localadpat}, is not fooled by fluky integrands.
+Fig.\ \ref{quadfailfig}b) displays a fluky integrand for which \MATLAB's \texttt{integral} fails to meet the specified error tolerance.  It does not fail because of flucuations of the integrand between the nodes.  Rather it fails because the two Gauss quadratures give the same (wrong) answer.  Other adaptive quadratures fail for the same reason.  Because a heuristic stopping criterion is used, there is no theory to explain which integrands may cause the algorithms to fail.  In contrast, the adaptive quadrature developed by the FJH and collaborators \cite{HicEtal14b, Zha18a}, which follows the procedure described above and is highlighted in Sect.\ \ref{sec:localadpat}, is not fooled by fluky integrands.
 
 \newlength{\figwidthA}
 \setlength{\figwidthA}{0.45\textwidth}
@@ -442,7 +442,7 @@ function routines normally do not meet these requirements.
 The de facto choice for many is to choose $\calc$ to be a ball, $\cb_{\rho} := \{f \in \calf : \norm[\calf]{f} \le \rho \}$, which resembles a scoop of ice cream, \smallerscoop.  Then one may define $\ALG$ satisfying \eqref{AlgErr} as in Algorithm \ref{BallAlg}. \emph{Parameters} are set by the algorithm designer and essentially unchanged e.g., the initial sample sizes in \MATLAB's \texttt{integral} and the \Chebfun library.  \emph{Inputs} are provided by the user and likely change each time the algorithm is called.
 
 \begin{algorithm}
-	\caption{Mock-Up Ball-Based $\ALG$ \label{BallAlg}} 
+	\caption{Model Ball-Based $\ALG$ \label{BallAlg}} 
 	\begin{algorithmic}
 	\PARAM a radius, $\rho$; $\APP$ satisfying \eqref{errorBd}
 		\INPUT a black-box function, $f$; an absolute error tolerance,
@@ -463,7 +463,7 @@ This ball-based algorithm is \emph{non-adaptive} because the error bound $\ErrN$
 An \emph{adaptive} algorithm, whose computational cost depends on the input $f$, can be constructed for input functions whose norms are not much larger than their minimum norm interpolants.  Assume an infinite sequence of nodes, $\designInf$, and let $f_{\textup{int},n}$, denote the minimum norm interpolant of $f \in \calf$ based on the data $\dataN$.  Algorithm \ref{ConeAlg} is defined to succeed for $\calc$ defined as a \emph{cone}, which resembles a waffle cone \smallcone.
 
 \begin{algorithm}
-	\caption{Mock-Up Cone-Based $\ALG$ \label{ConeAlg}} 
+	\caption{Model Cone-Based $\ALG$ \label{ConeAlg}} 
 	\begin{algorithmic}
 	\PARAM an initial sample size, $n_0$; an inflation factor, $\fC$; $\APP$ satisfying \eqref{errorBd}
 		\INPUT a black-box function, $f$; an absolute error tolerance,
@@ -623,7 +623,7 @@ In \cite{HicEtal14b}, FJH, YD, YZ, and collaborators developed an adaptive trape
 \]
 In defining $\cc$ the nodes may be unequally spaced, $\size(\cdot)$ denotes the maximum distance between adjacent nodes, $f_{\textup{int},n}$ denotes the linear spline based on $n$ nodes, and $\inflate(h) = \inflate(0) \hcut/(\hcut - h)$.  The $\ALG$ constructed by YZ follows Algorithm \ref{ConeAlg}, has  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order(\sqrt{\rho/\varepsilon})$, and is essentially optimal.  YZ also constructed an adaptive Simpson's rule.  In this case, the $f \in \cc$ have $\Var(f''')$ not much greater than the total variation of a piecewise cubic polynomial interpolant.  Moreover,  $\cost(\ALG,\cc,\varepsilon, \rho) =  \Order([\rho/\varepsilon]^{1/4})$ and is optimal.  
 
-YZ's algorithms are \emph{globally adaptive}---the sampling density is constant (equally spaced nodes).  However, \emph{locally adaptive} methods (unequally spaced nodes) may perform better for univariate problems.  FJH, SCTC, YD, and XT extended the globally adaptive algorithms in \cite{HicEtal14b,Ton14a} for univariate function approximation, $\SOL(f) = f$, and minimization, $\SOL(f) = \min_{a \le x \le b} f(x)$, to locally adaptive algorithms \cite{ChoEtal17a}.  The cone $\cc$ requires $f''$ to change mildly over small intervals.  Finite differences are used to locally bound the error of the linear spline in approximating a function or seeking its minimum. Figure 
+YZ's algorithms are \emph{globally adaptive}---the sampling density is constant (equally spaced nodes).  However, \emph{locally adaptive} methods (unequally spaced nodes) may perform better for univariate problems.  FJH, SCTC, YD, and XT extended the globally adaptive algorithms in \cite{HicEtal14b,Ton14a} for univariate function approximation, $\SOL(f) = f$, and minimization, $\SOL(f) = \min_{a \le x \le b} f(x)$, to locally adaptive algorithms \cite{ChoEtal17a}.  The cone $\cc$ requires $f''$ to change mildly over small intervals.  Finite differences are used to locally bound the error of the linear spline in approximating a function or seeking its minimum. Fig.\ 
 \ref{localadaptfig} depicts the function data required for function approximation and minimization.  Here, $f$ is 
 sampled sparsely where $|f''(x)|$ is small. For function minimization, $f$ is also sampled sparsely when $f(x)$ is significantly bigger than the observed minimum.
 
@@ -962,18 +962,7 @@ $\cc$, for which \Chebfun must give the correct answer.  This will be done in a 
 whose Chebyshev series does not decay erratically for terms with polynomial degree greater than 
 some minimum value.  Spiky functions will be excluded from $\cc$.
 
-\MATLAB's \texttt{fminbnd} is a local optimizer, whereas our algorithm described in Sect.\ \ref{sec:localadpat} is a guaranteed global optimizer, and thus a viable alternative.  We would like to improve it to .  Thus, our aglroHowever, our algorithm is not as high order as
-
-\emph{Locally Adaptive Optimization and Function Approximation.}
-We will use a similar line of argument to that in Sect.\ sec:localadpat}
-\ref{localadpatsec} to develop a locally adaptive 
-optimization algorithm of higher order convergence than the one we have constructed already.  Our 
-earlier 
-algorithm used piecewise linear approximations, and we expect faster convergence with piecewise 
-quadratic approximations.  Again computational cost of the algorithm and computational complexity 
-of the problem will be addressed.  We emphasize that while being locally adaptive, our algorithm 
-finds the 
-\emph{global} optimum.
+\MATLAB's \texttt{fminbnd} and similar algorithms are local optimizers, whereas our algorithm described in Sect.\ \ref{sec:localadpat} is a guaranteed global optimizer, and thus a viable alternative.  We would like to improve its convergence rate by performing quadratic search and place it commonly used software libraries.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Broader Impacts of the Proposed Research}\label{SectBroad}
@@ -983,10 +972,8 @@ finds the
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Contributions to Training, Mentoring and Other Human Resource Developments}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FJH runs a weekly research group meeting comprised of long-term and short-term student 
-collaborators, 
-visitors, the curious, and special guests.  Ongoing work in early or polished stages is shared.  Papers 
-of other authors are presented.  Mentoring takes place during these meetings as well as individually.
+FJH leads a weekly research group meeting comprised of long-term and short-term student 
+collaborators, visitors, the curious, and special guests.  Ongoing work in early or polished stages is shared.  Papers of other authors are presented.  Mentoring takes place during these meetings as well as individually.
 
 \emph{Providing Research Experiences for Undergraduate and High School Students.} Students 
 should be introduced to research before graduate school so that they can learn how to 
@@ -1006,8 +993,8 @@ welcome well-prepared high school students to join our research group.
 potentially long-term process continuing even after the mentee has moved on from Illinois Tech.  
 Our PhD students gain experience both research and mentoring the younger students in our 
 research group.  We 
-continue contact with many of our former students in academia.  In particular we continue to have 
-collaborations with YD, Qi Ye, and Yiou Li.  We will continue to help our students prepare for 
+continue contact with many of our former students.  In particular we continue to have 
+collaborations with YD and Yiou Li (female).  We will continue to help our students prepare for 
 academic careers and continue mentoring them after they leave Illinois Tech.
 
 \emph{Preparing Students for Industry Careers.}
@@ -1016,14 +1003,14 @@ competitive jobs in the business world. Our training in the areas of computation
 development gives our students the needed edge in comparison to other mathematics 
 graduates. For example, LlAJR and XZ are working in the financial services industry and  LJ is 
 working in marketing analytics.  All of them are developing and testing quantitatively sophisticated 
-and computationally intensive models.
+and computationally intensive models.  LlAJR and LJ continue to collaborate with us on research.
 
 \emph{Supervising Visitors.}
 Both FJH and SCTC have strong connections to East Asia.  We have hosted several long-term 
 self-funded visitors in the past and plan to do so in the future.
 
 \emph{Giving Tutorials and Invited Lectures.}
-We will continue providing lectures to students at various stages in their careers, ranging from high 
+We will continue providing lectures to students at various stages in their careers, ranging from high
 school to graduate school. These encourage students to enter STEM and encourage STEM students 
 to engage in research.
 
@@ -1034,46 +1021,38 @@ to engage in research.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 The research we propose straddles mathematics, statistics, theoretical computer science, and 
-application 
-areas.  The two PIs have complementary strengths that facilitate this interdisciplinary research.  FJH 
+application areas.  The two PIs have complementary strengths that facilitate this interdisciplinary research.  FJH 
 has expertise in \QMC methods, kernel-based methods, information-based complexity 
-theory, and experimental design. SCTC has expertise in computer science and applications.  Our 
+theory, tractability, and experimental design. SCTC has expertise in computer science and applications.  Our 
 expertise provides both an obligation and an opportunity to interact with a number of diverse 
 communities. We envision the following contributions:
 
 \emph{Disseminating Research}
-The research supported by this grant will result in publications in peer-reviewed journals in applied 
+The research supported by this grant will result in publications in peer-reviewed journals in applied
 mathematics, computer science, statistics, and science/engineering. These 
 journals will include both those that emphasize theory and those that emphasize applications.
 
 \emph{Promoting Cones.} The idea of guaranteed, adaptive algorithms via cones of reasonable input 
-functions 
-has broad potential application.  We will continue to promote this idea among numerical analysts 
+functions has broad potential application.  We will continue to promote this idea among numerical analysts 
 who 
 develop new algorithms and analyze their computational costs, as well as among information-based 
-complexity theorists who analyze the lower bounds on the complexity of numerical problems.  A 
-posteriori error analysis for finite element analysis may be an area where we can contribute since 
-this involves quadratures and cubatures.
+complexity theorists who analyze the lower bounds on the complexity of numerical problems.  The recent work by Kunsch, Novak, and Rudolf \cite{KunEtal19a} shows that the idea of cones is catching on.
 
 \emph{Bridging Applied Mathematics and Statistics.}
-This project touches on topics that are of interest to the statistics community: kriging, Monte Carlo 
-methods, and design of experiments.  We have and will continue to engage the statistics community 
-by speaking a their conferences and departmental colloquia.  For example, the PI visited the 
-statistics group at Georgia Tech earlier this year, and FJH is also engaging statisticians and 
-applied mathematicians through the \SAMSIQMC program.
+This project touches on topics that are of interest to the statistics community: kriging, Monte Carlo methods, probabilitistic numerics, and design of experiments.  We have and will continue to engage the statistics community 
+by speaking a their conferences and departmental colloquia.
 
 \emph{Organizing and Presenting at Conferences.}
-We and our students involved in this project will present our results at a variety of conferences and 
-workshops.  These include: (i) specialized meetings focusing on approximation theory, complexity, 
-experimental design, and Monte Carlo methods; (ii) the national meetings of AMS, SIAM, and the 
+We and our students involved in this project will present our results at a variety of conferences and workshops.  These include: (i) specialized meetings focusing on approximation theory, complexity, 
+experimental design, Monte Carlo methods, and probabilistic numerics; (ii) the national meetings of AMS, SIAM, and the 
 statistical societies; and (iii) conferences devoted to application areas.  We are frequently invited to 
 speak at such conferences, which will give our results a prominent hearing. We will also continue to 
 organize specialized conferences or minisymposia within larger conferences.
 
 \emph{Writing Survey Papers.}
-FJH and SCTC will continue their practice of writing tutorial, survey, and encyclopedia articles.  These will 
-make our findings accessible to a wider audience.
+FJH and SCTC will continue their practice of writing tutorial, survey, and encyclopedia articles.  These will make our findings accessible to a wider audience.
 
+\iffalse
 \emph{Refreshing Course Syllabi.}
 MATH 565 (Monte Carlo Methods in Finance), taught every fall by FJH, has incorporated our new 
 results on guaranteed (quasi-)Monte Carlo multivariate integration. In the future it will include our 
@@ -1086,25 +1065,26 @@ enter our more traditional numerical analysis courses such as MATH 350 (Intro to
 Math).  SCTC and FJH will continue to develop MATH 573 (Reliable Mathematical Software) as a 
 valuable course for our own students and an example that we wish to propagate to other 
 universities.
+\fi
 
 \emph{Creating Software and Collaborating with Software Developers.}
 We will continue to develop \GAIL \citep{ChoEtal17b} (now up to version 2.2).  The \GAIL software 
-will 
-serve the wider community that relies on numerical approximation and integration algorithms.  It will 
+will serve the wider community that relies on numerical approximation and integration algorithms.  It will 
 also demonstrate how adaptive algorithms ought to be implemented, which we hope will inspire and 
 inform those working on adaptive algorithms for other mathematical problems.  We will involve 
-students in porting \GAIL to other platforms, such as Python, \Rlang, and \Julia.  We expect our 
-new algorithms to be incorporated into widely used numerical packages, as was done for our 
-algorithm in \cite{HonHic00a} by \MATLAB and \NAG.  We will continue 
+students in porting \GAIL to other platforms, such as Python, \Rlang, and \Julia.  
+
+In the summer of 2018, we began engaging with other \QMC research groups about combining our software efforts.  These included the groups of Mike Giles (Oxford, Multi-Level Monte Carlo),  Frances Kuo (UNSW, \QMC generators, PDEs with random coefficients),  Dirk Nuyens (KU Leuven, \QMC generators, PDEs with random coefficients), and Christoph Schwab (ETH-Zurich, PDEs with random coefficients).  All of these groups have significant software development efforts, but our software libraries do not talk to one another.  We have had preliminary conversations on a common framework for a shared community quasi-Monte Carlo software library, \QMCSoft.  If all groups would write their software to the specifications of this framework, then improvements and additions would immediately work with the other parts of the library.
+
+We will collaborate with these other research groups to move our software to this common framework.  Given the difficulty in agreeing upon one language, this may be a multi-language effort.  As the \QMC community embraces \QMCSoft, we expect our core of contributors to grow.  Scholars who develop new \QMC algorithms or use \QMC in applications will be encouraged to add them to \QMCSoft.  
+
+We expect our new algorithms to be incorporated into widely used numerical packages, as was done for our algorithm in \cite{HonHic00a} by \MATLAB and \NAG.  We have already and will continue 
 to discuss with software developers about good practices for adaptive algorithms.
+
 
 \emph{New Applications of \QMC.}
 The application of \QMC has focused on a few areas, such as financial modeling and computer 
-graphics, but there is 
-potential for much wider application.  LlAJR has collaborated with Fermilab implementing \QMC 
-algorithms, and we plan to continue.    New applications of \QMC are arising from \SAMSIQMC that 
-we plan to pursue.  Presently, KZ is exploring how to use \QMC to more efficiently perform Bayesian 
-inference.
+graphics, but there is potential for much wider application.  LlAJR has collaborated with Fermilab implementing \QMC algorithms, and we plan to continue.    New applications of \QMC are arising from \SAMSIQMC that we plan to pursue.  Presently, KZ is exploring how to use \QMC to more efficiently perform Bayesian inference.
 
 
 
@@ -1157,10 +1137,10 @@ and  \cite[p.\ 270]{Sau12a} propose estimating the absolute error of $T_n(f)$ by
 \end{equation}
 Although this $\herr_n(f)$ is valid in some cases, it is flawed.  This $\herr_n(f)$  fails for 
 spiky integrands whose 
-spikes fall  between the nodes as in Figure \ref{quadfailfig}(a).  Worse, this $\herr_n(f)$ can fail 
+spikes fall  between the nodes as in Fig.\ \ref{quadfailfig}(a).  Worse, this $\herr_n(f)$ can fail 
 for 
 integrands that are \emph{not spiky} if $T_n(f)$ is coincidentally (nearly) 
-the same as  $T_{n/2}(f)$ (see Figure \ref{quadfailfig}(b)).  Over 30 years ago, James 
+the same as  $T_{n/2}(f)$ (see Fig.\ \ref{quadfailfig}(b)).  Over 30 years ago, James 
 Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws of nearly all adaptive quadratures:
 \begin{quote}
 	While prepared to take the risk of being misled by chance alignment of zeros in the integrand 
@@ -1171,8 +1151,8 @@ Lyness \cite[p.\ 69]{Lyn83} pointed out the flaws of nearly all adaptive quadrat
 	(say $1$ to $5\%$) and there is no way of predicting in a straightforward way in which of any set 
 	of apparently reasonable problems this will happen.
 \end{quote}
-Figure \ref{quadfailfig}(b) depicts a reasonable integrand for which $\herr_n(f)$ in 
-\eqref{tradtraperrest} fails.  Figure 
+Fig.\ \ref{quadfailfig}(b) depicts a reasonable integrand for which $\herr_n(f)$ in 
+\eqref{tradtraperrest} fails.  Fig.\ 
 \ref{quadfailfig}(c) depicts a reasonable integrand for which the error estimate, $\herr_n(f)$, 
 used 
 by  
